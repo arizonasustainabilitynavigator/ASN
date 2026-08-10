@@ -47,7 +47,7 @@ export default function MissionSection() {
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 aspect-[16/9] border-8 border-background">
             <video
               ref={videoRef}
-              src="/mission-video.mp4"
+              src={`${import.meta.env.BASE_URL}mission-video.mp4`}
               autoPlay
               loop
               muted
