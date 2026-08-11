@@ -1,8 +1,26 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { api } from "@/api/client";
 
 const AuthContext = createContext(null);
+
+// Key the quiz results page stashes answers under when someone takes the
+// quiz before creating an account, so they can be linked to the account
+// once one exists (see the onAuthStateChange handler below).
+export const PENDING_QUIZ_KEY = "asn_pending_quiz_answers";
+
+async function flushPendingQuizResponse(userId) {
+  const raw = localStorage.getItem(PENDING_QUIZ_KEY);
+  if (!raw || !userId) return;
+  localStorage.removeItem(PENDING_QUIZ_KEY);
+  try {
+    const answers = JSON.parse(raw);
+    await api.entities.QuizResponse.create({ userId, answers });
+  } catch (e) {
+    console.error("Failed to save pending quiz response", e);
+  }
+}
 
 function getAuthRedirectUrl() {
   const configuredRedirect = import.meta.env.VITE_SUPABASE_REDIRECT_URL?.trim();
@@ -78,6 +96,7 @@ export function AuthProvider({ children }) {
       setUser(session?.user ?? null);
       setIsAuthenticated(!!session?.user);
       setIsLoadingAuth(false);
+      if (session?.user) flushPendingQuizResponse(session.user.id);
     });
 
     return () => data?.subscription?.unsubscribe();

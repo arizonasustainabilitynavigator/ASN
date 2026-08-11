@@ -6,7 +6,7 @@ import HeroIllustration from "@/components/HeroIllustration";
 import ResourceCardMinimal from "@/components/ResourceCardMinimal";
 import ResourceDetailPanel from "@/components/ResourceDetailPanel";
 import { api } from "@/api/client";
-import { WASTE_TYPES } from "@/lib/constants";
+import { CURATED_RESOURCE_FILTERS } from "@/lib/constants";
 
 const SEARCH_RADIUS_MILES = 25;
 const ZIP_PATTERN = /^\d{5}$/;
@@ -39,7 +39,7 @@ export default function HeroSection() {
     event.preventDefault();
 
     if (!wasteType || !zipCode.trim()) {
-      setError("Please select a waste type and enter a zip code.");
+      setError("Please select a resource category and enter a zip code.");
       setHasSearched(false);
       return;
     }
@@ -57,10 +57,14 @@ export default function HeroSection() {
   const normalizedZip = zipCode.trim();
   const nearbyZips = normalizedZip ? new Set(zipcodes.radius(normalizedZip, SEARCH_RADIUS_MILES)) : null;
 
+  const selectedFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === wasteType);
+
   const filteredBusinesses = hasSearched
     ? businesses
         .filter((business) => {
-          const matchesType = wasteType === "all" || business.waste_types?.includes(wasteType);
+          const matchesType =
+            wasteType === "all" ||
+            selectedFilter?.relatedWasteTypes.some((wt) => business.waste_types?.includes(wt));
           const businessZip = business.zip_code ? String(business.zip_code).trim() : "";
           const matchesZip = !normalizedZip || nearbyZips.has(businessZip);
 
@@ -118,18 +122,18 @@ export default function HeroSection() {
                 <form onSubmit={handleSubmit} className="space-y-4 mb-6">
                   <div>
                     <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
-                      Waste Type
+                      Resource Category
                     </label>
                     <select
                       value={wasteType}
                       onChange={(event) => setWasteType(event.target.value)}
                       className="w-full bg-white border border-border px-4 py-3 text-foreground text-sm focus:border-primary focus:outline-none transition-colors"
                     >
-                      <option value="">Select waste type</option>
+                      <option value="">Select resource category</option>
                       <option value="all">All Resources</option>
-                      {WASTE_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
+                      {CURATED_RESOURCE_FILTERS.map((f) => (
+                        <option key={f.label} value={f.label}>
+                          {f.label}
                         </option>
                       ))}
                     </select>

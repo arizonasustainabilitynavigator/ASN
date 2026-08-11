@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizResults from "@/components/quiz/QuizResults";
 import CountryDropdown from "@/components/quiz/CountryDropdown";
+import { useAuth, PENDING_QUIZ_KEY } from "@/lib/AuthContext";
+import { api } from "@/api/client";
 import {
   ORG_COUNTRY_OPTIONS,
   ORG_TYPE_OPTIONS,
@@ -54,8 +56,25 @@ const INITIAL_ANSWERS = {
 export default function SustainabilityQuiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(INITIAL_ANSWERS);
+  const { isAuthenticated, user } = useAuth();
+  const savedRef = useRef(false);
 
   const update = (field, value) => setAnswers((prev) => ({ ...prev, [field]: value }));
+
+  // Saves the completed quiz once someone reaches the results screen: if
+  // they're already signed in, tie it to their account immediately;
+  // otherwise stash it for AuthContext to pick up and save once they sign
+  // in or create an account (see PENDING_QUIZ_KEY / onAuthStateChange).
+  useEffect(() => {
+    if (step !== TOTAL_STEPS || savedRef.current) return;
+    savedRef.current = true;
+    if (isAuthenticated && user) {
+      api.entities.QuizResponse.create({ userId: user.id, answers }).catch((e) => console.error(e));
+    } else {
+      localStorage.setItem(PENDING_QUIZ_KEY, JSON.stringify(answers));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Toggles a value in and out of an array field, capping the number of
   // selections at `max` (used for the "select up to 3" questions).
@@ -131,6 +150,7 @@ export default function SustainabilityQuiz() {
   const handleRestart = () => {
     setAnswers(INITIAL_ANSWERS);
     setStep(0);
+    savedRef.current = false;
   };
 
   // Reusable button group for single-select questions.

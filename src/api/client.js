@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { WASTE_TYPES } from "@/lib/constants";
 
 // Local fallback for events until the `events` table migration
 // (supabase/migrations/0004_events.sql) has been run against the project.
@@ -148,14 +149,40 @@ const api = {
         if (cities?.length) request = request.overlaps("cities", cities);
         if (search) {
           const term = search.replace(/[%,]/g, "");
-          request = request.or(
-            `resource_name.ilike.%${term}%,city_text.ilike.%${term}%,county_text.ilike.%${term}%`
-          );
+          const clauses = [
+            `resource_name.ilike.%${term}%`,
+            `city_text.ilike.%${term}%`,
+            `county_text.ilike.%${term}%`,
+          ];
+          // Also match against the fixed tag vocabulary (e.g. typing
+          // "climate" surfaces everything tagged Climate), since tags is
+          // an array column PostgREST can't ILIKE directly - contains (cs)
+          // needs the exact tag value, so match it against typed tags
+          // whose name contains what was typed.
+          const matchingTags = WASTE_TYPES.filter((tag) => tag.toLowerCase().includes(term.toLowerCase()));
+          for (const tag of matchingTags) {
+            clauses.push(`tags.cs.{${tag}}`);
+          }
+          request = request.or(clauses.join(","));
         }
 
         const { data, error, count } = await request;
         if (error) throw error;
         return { data, count: count ?? data.length };
+      },
+    },
+    QuizResponse: {
+      // Ties a completed sustainability quiz submission to the account
+      // that took it, so the team can see what users need by browsing
+      // this table directly in Supabase.
+      create: async ({ userId, answers }) => {
+        const { data, error } = await supabase
+          .from("quiz_responses")
+          .insert({ user_id: userId, answers })
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
       },
     },
     Event: {
