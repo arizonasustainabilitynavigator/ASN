@@ -1,10 +1,19 @@
-export const ORG_COUNTRY_OPTIONS = [
-  "United States",
-  "Canada",
-  "United Kingdom",
-  "Germany",
-  "France",
-  "Australia",
+export const ORG_COUNTY_OPTIONS = [
+"Apache County",
+"Cochise County",
+"Coconino County",
+"Gila County",
+"Graham County",
+"Greenlee County",
+"La Paz County",
+"Maricopa County",
+"Mohave County",
+"Navajo County",
+"Pima County",
+"Pinal County",
+"Santa Cruz County",
+"Yavapai County",
+"Yuma County",
 ];
 
 export const ORG_TYPE_OPTIONS = [

@@ -4,11 +4,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizResults from "@/components/quiz/QuizResults";
-import CountryDropdown from "@/components/quiz/CountryDropdown";
+import CountyDropdown from "@/components/quiz/CountyDropdown";
 import { useAuth, PENDING_QUIZ_KEY } from "@/lib/AuthContext";
 import { api } from "@/api/client";
 import {
-  ORG_COUNTRY_OPTIONS,
+  ORG_COUNTY_OPTIONS,
   ORG_TYPE_OPTIONS,
   ORG_CATEGORY_OPTIONS,
   EMPLOYEE_COUNT_OPTIONS,
@@ -33,7 +33,7 @@ const MAX_MULTI_SELECT = 3;
 
 const INITIAL_ANSWERS = {
   orgZipCode: "",
-  orgCountry: "",
+  orgCounty: "",
   orgType: "",
   orgTypeOther: "",
   orgCategory: "",
@@ -95,7 +95,7 @@ export default function SustainabilityQuiz() {
   };
 
   const canContinue = () => {
-    if (step === 0) return !!answers.orgCountry;
+    if (step === 0) return !!answers.orgCounty;
 
     if (step === 1) {
       return (
@@ -230,12 +230,11 @@ export default function SustainabilityQuiz() {
                   className="w-full bg-card border border-border px-4 py-3.5 text-foreground placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
                 />
 
-                <CountryDropdown
-                  options={ORG_COUNTRY_OPTIONS}
-                  value={answers.orgCountry}
-                  onChange={(option) => update("orgCountry", option)}
-                  zipCode={answers.orgZipCode}
-                />
+             <CountyDropdown
+                zip={answers.orgZipCode}
+                value={answers.orgCounty}
+                onChange={(county) => update("orgCounty", county)}
+              />
               </div>
             </div>
           )}
