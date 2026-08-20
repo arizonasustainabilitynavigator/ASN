@@ -29,6 +29,9 @@ export default function Navbar() {
             <Link to="/events" className="text-foreground text-xs tracking-[0.2em] uppercase hover:text-primary transition-colors">
               Events
             </Link>
+            <Link to="/insights" className="text-foreground text-xs tracking-[0.2em] uppercase hover:text-primary transition-colors">
+              Insights
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link to="/profile" className="text-foreground text-xs tracking-[0.2em] uppercase hover:text-primary transition-colors">
@@ -76,6 +79,7 @@ export default function Navbar() {
             { label: "Home", to: "/" },
             { label: "Resources", to: "/resource" },
             { label: "Events", to: "/events" },
+            { label: "Insights", to: "/insights" },
             { label: "Profile", to: "/profile" }].
             map((item) =>
             <Link

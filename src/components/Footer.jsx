@@ -47,6 +47,7 @@ export default function Footer() {
                 { label: "Home", to: "/" },
                 { label: "Resources", to: "/resource" },
                 { label: "Events", to: "/events" },
+                { label: "Insights", to: "/insights" },
                 { label: "Profile", to: "/profile" },
               ].map((link) => (
                 <Link

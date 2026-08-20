@@ -9,6 +9,7 @@ import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Home from '@/pages/Home';
 import About from '@/pages/About';
+import Insights from '@/pages/Insights';
 import FAQ from '@/pages/FAQ';
 import SustainabilityQuiz from '@/pages/SustainabilityQuiz';
 import Resource from '@/pages/Resource';
@@ -36,6 +37,7 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/insights" element={<Insights />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/quiz" element={<SustainabilityQuiz />} />
       <Route path="/login" element={<Login />} />
