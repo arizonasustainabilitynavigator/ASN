@@ -7,6 +7,7 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import PartnerLogos from "@/components/PartnerLogos";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -17,7 +18,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-foreground text-background">
+    <>
+      <PartnerLogos />
+      <footer className="bg-foreground text-background">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-32">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           <div className="md:col-span-2">
@@ -146,6 +149,7 @@ export default function Footer() {
           </button>
         </div>
       </div>
-    </footer>
+      </footer>
+    </>
   );
 }
