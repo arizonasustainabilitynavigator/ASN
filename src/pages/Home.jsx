@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import MissionSection from "@/components/MissonSection";
 import CTASection from "@/components/CTASection";
+import PartnerLogos from "@/components/PartnerLogos";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       </div>
       <MissionSection />
       <CTASection />
+      <PartnerLogos />
       <Footer />
     </div>
   );
