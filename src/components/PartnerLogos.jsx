@@ -4,13 +4,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 // Fill in `url` for each partner once the link document is available.
 // Leave as null and the logo renders without a link (no click-through).
 const PARTNERS = [
-  { name: "Collaboration for Good", file: "cfg.jpg", url: "https://www.collaborationforgood.com" },
-  { name: "City of Phoenix", file: "city-of-phoenix.jpg", url: "https://www.phoenix.gov/" },
+  { name: "Collaboration for Good", file: "cfg.png", url: "https://www.collaborationforgood.com" },
+  { name: "City of Phoenix", file: "city-of-phoenix.png", url: "https://www.phoenix.gov/" },
   { name: "City of Surprise", file: "city-of-surprise.png", url: "https://surpriseaz.gov/economic-development" },
   { name: "Arizona Sustainable Economic Lab", file: "az-sustainable-economic-lab.png", url: "https://www.iedconline.org/pages/az-sustainable/" },
-  { name: "IEDC", file: "iedc.jpg", url: "https://www.iedconline.org/" },
+  { name: "IEDC", file: "iedc.png", url: "https://www.iedconline.org/" },
   { name: "Local First Arizona", file: "local-first-arizona.png", url: "https://localfirstaz.com/" },
-  { name: "Flinn Foundation", file: "flinn.jpg", url: "https://www.flinn.org/" },
+  { name: "Flinn Foundation", file: "flinn.png", url: "https://www.flinn.org/" },
   { name: "HMA", file: "hma.png", url: "https://hmapr.com/" },
   { name: "2025 Breakthrough", file: "breakthrough.png", url: "https://www.ignitesparkedbybbb.org/bbb-breakthrough-accelerator" },
   { name: "Arizona Forward", file: "horizontal-fullcolor.png", url: "https://arizonaforward.org/" },
