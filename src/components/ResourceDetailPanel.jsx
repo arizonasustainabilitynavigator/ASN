@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { X, Phone, Mail, Globe, MapPin } from "lucide-react";
+import { copyToClipboard } from "@/lib/copyToClipboard";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ResourceDetailPanel({ business, onClose }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   const requireAuth = (action) => {
     if (!isAuthenticated) {
@@ -104,26 +107,26 @@ export default function ResourceDetailPanel({ business, onClose }) {
                     }
                   });
                 }}
-                className="flex-1 flex items-center justify-center gap-2 bg-foreground text-background py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-primary transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-foreground text-background py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-primary"
               >
                 <Phone size={14} />
                 {phoneRevealed ? business.phone : "Call Resource"}
               </button>
             )}
             {business.email && (
-              <a
-                href={`mailto:${business.email}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  requireAuth(() => {
-                    window.location.href = `mailto:${business.email}`;
+              <button
+                type="button"
+                onClick={() => {
+                  requireAuth(async () => {
+                    await copyToClipboard(business.email);
+                    toast({ title: "Email copied to clipboard", description: business.email });
                   });
                 }}
-                className="flex-1 flex items-center justify-center gap-2 border border-foreground text-foreground py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-foreground hover:text-background transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 border border-foreground text-foreground py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground hover:text-background"
               >
                 <Mail size={14} />
-                Initiate Email
-              </a>
+                Copy Email
+              </button>
             )}
           </div>
 
@@ -138,7 +141,7 @@ export default function ResourceDetailPanel({ business, onClose }) {
                   window.open(business.website, "_blank", "noopener,noreferrer");
                 });
               }}
-              className="flex items-center justify-center gap-2 mt-3 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-foreground transition-colors"
+              className="flex items-center justify-center gap-2 mt-3 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground"
             >
               <Globe size={14} />
               Visit Website

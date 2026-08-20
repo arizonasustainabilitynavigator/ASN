@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Phone, Mail, Globe, MapPin } from "lucide-react";
+import { copyToClipboard } from "@/lib/copyToClipboard";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ResourceCard({ business, onClick }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   const requireAuth = (action) => {
     if (!isAuthenticated) {
@@ -88,27 +91,29 @@ export default function ResourceCard({ business, onClick }) {
                   setPhoneRevealed(true);
                 }
               }}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-foreground text-background px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-primary transition-colors whitespace-nowrap"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-foreground text-background px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-primary whitespace-nowrap"
             >
               <Phone size={13} className="flex-shrink-0" />
               <span className="truncate">{phoneRevealed ? business.phone : "Call"}</span>
             </button>
           )}
           {business.email && (
-            <a
-              href={isAuthenticated ? `mailto:${business.email}` : undefined}
-              onClick={(e) => {
+            <button
+              type="button"
+              onClick={async (e) => {
                 e.stopPropagation();
                 if (!isAuthenticated) {
-                  e.preventDefault();
                   navigate("/register");
+                  return;
                 }
+                await copyToClipboard(business.email);
+                toast({ title: "Email copied to clipboard", description: business.email });
               }}
-              className="flex-1 flex items-center justify-center gap-1.5 border border-foreground text-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              className="flex-1 flex items-center justify-center gap-1.5 border border-foreground text-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground hover:text-background whitespace-nowrap"
             >
               <Mail size={13} className="flex-shrink-0" />
               Email
-            </a>
+            </button>
           )}
         </div>
 
@@ -124,7 +129,7 @@ export default function ResourceCard({ business, onClick }) {
                 navigate("/register");
               }
             }}
-            className="flex items-center justify-center gap-1.5 mt-2 bg-primary text-primary-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-foreground transition-colors"
+            className="flex items-center justify-center gap-1.5 mt-2 bg-primary text-primary-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground"
           >
             <Globe size={13} />
             Visit Website

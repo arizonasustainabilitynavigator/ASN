@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { X, Phone, Mail, ExternalLink, MapPin } from "lucide-react";
 import { formatResourceLocations } from "@/lib/formatResourceLocations";
+import { copyToClipboard } from "@/lib/copyToClipboard";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function CuratedResourceDetailPanel({ resource, onClose }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const { toast } = useToast();
 
   if (!resource) return null;
 
@@ -86,20 +89,24 @@ export default function CuratedResourceDetailPanel({ resource, onClose }) {
                       setPhoneRevealed(true);
                     }
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 bg-foreground text-background py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-primary transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-foreground text-background py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-primary"
                 >
                   <Phone size={14} />
                   {phoneRevealed ? resource.phone : "Call Resource"}
                 </button>
               )}
               {resource.email && (
-                <a
-                  href={`mailto:${resource.email}`}
-                  className="flex-1 flex items-center justify-center gap-2 border border-foreground text-foreground py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-foreground hover:text-background transition-colors"
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await copyToClipboard(resource.email);
+                    toast({ title: "Email copied to clipboard", description: resource.email });
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 border border-foreground text-foreground py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground hover:text-background"
                 >
                   <Mail size={14} />
-                  Initiate Email
-                </a>
+                  Copy Email
+                </button>
               )}
             </div>
           )}
@@ -109,7 +116,7 @@ export default function CuratedResourceDetailPanel({ resource, onClose }) {
               href={resource.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.05em] uppercase hover:bg-foreground transition-colors"
+              className="flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.05em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground"
             >
               <ExternalLink size={14} />
               Visit Resource

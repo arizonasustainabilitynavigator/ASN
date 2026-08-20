@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { MapPin, ExternalLink, Phone, Mail } from "lucide-react";
 import { formatResourceLocations } from "@/lib/formatResourceLocations";
+import { copyToClipboard } from "@/lib/copyToClipboard";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function CuratedResourceCard({ resource, onClick }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const { toast } = useToast();
   const locationText = formatResourceLocations(resource);
 
   return (
@@ -70,21 +73,25 @@ export default function CuratedResourceCard({ resource, onClick }) {
                     setPhoneRevealed(true);
                   }
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-foreground text-background px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-primary transition-colors whitespace-nowrap"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-foreground text-background px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-primary whitespace-nowrap"
               >
                 <Phone size={13} className="flex-shrink-0" />
                 <span className="truncate">{phoneRevealed ? resource.phone : "Call"}</span>
               </button>
             )}
             {resource.email && (
-              <a
-                href={`mailto:${resource.email}`}
-                onClick={(e) => e.stopPropagation()}
-                className="flex-1 flex items-center justify-center gap-1.5 border border-foreground text-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-foreground hover:text-background transition-colors whitespace-nowrap"
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await copyToClipboard(resource.email);
+                  toast({ title: "Email copied to clipboard", description: resource.email });
+                }}
+                className="flex-1 flex items-center justify-center gap-1.5 border border-foreground text-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground hover:text-background whitespace-nowrap"
               >
                 <Mail size={13} className="flex-shrink-0" />
                 Email
-              </a>
+              </button>
             )}
           </div>
         )}
@@ -95,7 +102,7 @@ export default function CuratedResourceCard({ resource, onClick }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center gap-1.5 bg-primary text-primary-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase hover:bg-foreground transition-colors whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 bg-primary text-primary-foreground px-3 py-2.5 text-sm tracking-[0.03em] uppercase active:scale-95 transition-all duration-150 hover:bg-foreground whitespace-nowrap"
           >
             <ExternalLink size={13} className="flex-shrink-0" />
             Visit
