@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase, createIsolatedAuthClient } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Loader2 } from "lucide-react";
@@ -15,31 +15,11 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [hasRecoverySession, setHasRecoverySession] = useState(null);
-  const recoveryTokensRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      const session = data?.session;
-      setHasRecoverySession(!!session);
-      if (session) {
-        // Supabase persists this recovery session to localStorage, which
-        // every other open tab on this site picks up instantly — so the tab
-        // the user already had open flips to "signed in" the moment this
-        // page loads, before they've touched anything. Grab the tokens we
-        // need for updateUser() and sign the shared session back out right
-        // away, rather than waiting until the form is submitted, so that
-        // window of unwanted cross-tab sign-in is as short as possible.
-        recoveryTokensRef.current = {
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-        };
-        // scope: "local" only clears this tab's stored session — the
-        // default ("global") revokes the tokens on Supabase's server, which
-        // would invalidate the very tokens captured above before the
-        // isolated client gets a chance to use them for updateUser().
-        await supabase.auth.signOut({ scope: "local" });
-      }
+    supabase.auth.getSession().then(({ data }) => {
+      setHasRecoverySession(!!data?.session);
     });
   }, []);
 
@@ -56,17 +36,18 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      // Use a throwaway client that never touches localStorage — the tokens
-      // captured on mount are enough to authorize this one updateUser()
-      // call, and doing it this way means the update never re-persists a
-      // session that other tabs would pick up again.
-      const isolatedClient = createIsolatedAuthClient();
-      const { error: setSessionError } = await isolatedClient.auth.setSession(
-        recoveryTokensRef.current
-      );
-      if (setSessionError) throw setSessionError;
-      const { error: updateError } = await isolatedClient.auth.updateUser({ password });
+      // Act on the recovery session Supabase already established for this
+      // tab when the link redirected here — that's the one guaranteed-valid
+      // session we have, so use it directly rather than re-authenticating a
+      // second client (which depends on a refresh_token this flow doesn't
+      // always provide, and was failing with "Auth session missing!").
+      const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
+      // scope: "local" clears only this tab's session, without the network
+      // round-trip "global" scope makes to revoke it server-side — the
+      // password is already changed at this point, so there's nothing left
+      // to protect by revoking, and this keeps the sign-out fast.
+      await supabase.auth.signOut({ scope: "local" });
       setSuccess(true);
       setTimeout(() => {
         // The reset link opens in a brand-new tab (email clients always do
