@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FileText, Download, ExternalLink, Info } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -124,6 +124,28 @@ function GridCard({ item, onPreview }) {
 
 export default function Insights() {
   const [previewItem, setPreviewItem] = useState(null);
+  const dialogContentRef = useRef(null);
+
+  // The Dialog component's zoom/slide-in animation classes (from
+  // tw-animate-css) sometimes get stuck at their mid-animation transform
+  // (scale(0.95) plus an offset translate) instead of settling at the
+  // final centered state — on a narrow viewport this pushes most of the
+  // dialog off-screen. A plain inline `style.transform` can't fix this,
+  // because an active CSS animation on `transform` overrides a normal
+  // (non-!important) inline style for that property. Setting it with
+  // `important` via the CDATA-level API is the one thing that wins.
+  useEffect(() => {
+    if (!previewItem || !dialogContentRef.current) return;
+    const el = dialogContentRef.current;
+    const apply = () => el.style.setProperty("transform", "translate(-50%, -50%)", "important");
+    apply();
+    const raf = requestAnimationFrame(apply);
+    const timeout = setTimeout(apply, 200);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timeout);
+    };
+  }, [previewItem]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,6 +191,7 @@ export default function Insights() {
 
       <Dialog open={!!previewItem} onOpenChange={(open) => !open && setPreviewItem(null)}>
         <DialogContent
+          ref={dialogContentRef}
           className="p-6"
           style={{
             display: "flex",
@@ -176,6 +199,7 @@ export default function Insights() {
             width: "95vw",
             height: "94vh",
             maxWidth: "1400px",
+            transform: "translate(-50%, -50%)",
           }}
         >
           <DialogHeader>
