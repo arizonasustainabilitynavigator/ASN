@@ -39,7 +39,12 @@ export default function ResetPassword() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       setSuccess(true);
-      setTimeout(() => navigate("/"), 1500);
+      // The recovery link signs the user in temporarily so updateUser() has
+      // a session to act on — sign back out afterward so they land on login
+      // and authenticate fresh with their new password, rather than staying
+      // signed in via that recovery session.
+      await supabase.auth.signOut();
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to reset password"));
     } finally {
