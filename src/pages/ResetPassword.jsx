@@ -44,7 +44,16 @@ export default function ResetPassword() {
       // and authenticate fresh with their new password, rather than staying
       // signed in via that recovery session.
       await supabase.auth.signOut();
-      setTimeout(() => navigate("/login"), 1500);
+      setTimeout(() => {
+        // The reset link opens in a brand-new tab (email clients always do
+        // this). That tab has no history to go "back" to, so close it and
+        // let the user return to whatever tab they already had open —
+        // rather than leaving an orphan tab signed out on /login. Browsers
+        // only allow window.close() on tabs a script opened or that have no
+        // navigation history; if it's blocked, fall back to /login in place.
+        window.close();
+        navigate("/login");
+      }, 1500);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to reset password"));
     } finally {
