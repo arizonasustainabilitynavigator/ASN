@@ -34,7 +34,11 @@ export default function ResetPassword() {
           access_token: session.access_token,
           refresh_token: session.refresh_token,
         };
-        await supabase.auth.signOut();
+        // scope: "local" only clears this tab's stored session — the
+        // default ("global") revokes the tokens on Supabase's server, which
+        // would invalidate the very tokens captured above before the
+        // isolated client gets a chance to use them for updateUser().
+        await supabase.auth.signOut({ scope: "local" });
       }
     });
   }, []);
