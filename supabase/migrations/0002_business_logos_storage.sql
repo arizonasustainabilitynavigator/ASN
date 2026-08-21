@@ -5,10 +5,12 @@ insert into storage.buckets (id, name, public)
 values ('business-logos', 'business-logos', true)
 on conflict (id) do nothing;
 
+drop policy if exists "Business logos are publicly readable" on storage.objects;
 create policy "Business logos are publicly readable"
   on storage.objects for select
   using (bucket_id = 'business-logos');
 
+drop policy if exists "Users can upload their own business logo" on storage.objects;
 create policy "Users can upload their own business logo"
   on storage.objects for insert
   to authenticated
@@ -17,6 +19,7 @@ create policy "Users can upload their own business logo"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "Users can update their own business logo" on storage.objects;
 create policy "Users can update their own business logo"
   on storage.objects for update
   to authenticated
@@ -25,6 +28,7 @@ create policy "Users can update their own business logo"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "Users can delete their own business logo" on storage.objects;
 create policy "Users can delete their own business logo"
   on storage.objects for delete
   to authenticated

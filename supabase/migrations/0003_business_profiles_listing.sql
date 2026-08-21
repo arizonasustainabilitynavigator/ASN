@@ -7,6 +7,7 @@ alter table public.business_profiles
 -- your own profile regardless of listing status, and other people's
 -- profiles only if they've opted in to be listed.
 drop policy if exists "Business profiles are viewable by authenticated users" on public.business_profiles;
+drop policy if exists "Business profiles are viewable if listed or own" on public.business_profiles;
 
 create policy "Business profiles are viewable if listed or own"
   on public.business_profiles for select

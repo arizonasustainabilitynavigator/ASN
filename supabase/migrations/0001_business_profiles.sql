@@ -17,18 +17,21 @@ create table if not exists public.business_profiles (
 alter table public.business_profiles enable row level security;
 
 -- Anyone signed in can browse the directory.
+drop policy if exists "Business profiles are viewable by authenticated users" on public.business_profiles;
 create policy "Business profiles are viewable by authenticated users"
   on public.business_profiles for select
   to authenticated
   using (true);
 
 -- You can only create a profile that belongs to you.
+drop policy if exists "Users can insert their own business profile" on public.business_profiles;
 create policy "Users can insert their own business profile"
   on public.business_profiles for insert
   to authenticated
   with check (auth.uid() = user_id);
 
 -- You can only edit your own profile.
+drop policy if exists "Users can update their own business profile" on public.business_profiles;
 create policy "Users can update their own business profile"
   on public.business_profiles for update
   to authenticated
@@ -36,6 +39,7 @@ create policy "Users can update their own business profile"
   with check (auth.uid() = user_id);
 
 -- You can only delete your own profile.
+drop policy if exists "Users can delete their own business profile" on public.business_profiles;
 create policy "Users can delete their own business profile"
   on public.business_profiles for delete
   to authenticated
