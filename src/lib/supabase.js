@@ -39,3 +39,17 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     flowType: "pkce",
   },
 });
+
+// A client whose session lives only in memory, never localStorage — used
+// for one-off authorized calls (like completing a password reset) that
+// shouldn't persist a session or broadcast a sign-in to this site's other
+// open tabs the way the shared `supabase` client does.
+export function createIsolatedAuthClient() {
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}

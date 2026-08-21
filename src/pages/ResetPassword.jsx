@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase, createIsolatedAuthClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Loader2 } from "lucide-react";
@@ -15,11 +15,27 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [hasRecoverySession, setHasRecoverySession] = useState(null);
+  const recoveryTokensRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setHasRecoverySession(!!data?.session);
+    supabase.auth.getSession().then(async ({ data }) => {
+      const session = data?.session;
+      setHasRecoverySession(!!session);
+      if (session) {
+        // Supabase persists this recovery session to localStorage, which
+        // every other open tab on this site picks up instantly — so the tab
+        // the user already had open flips to "signed in" the moment this
+        // page loads, before they've touched anything. Grab the tokens we
+        // need for updateUser() and sign the shared session back out right
+        // away, rather than waiting until the form is submitted, so that
+        // window of unwanted cross-tab sign-in is as short as possible.
+        recoveryTokensRef.current = {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        };
+        await supabase.auth.signOut();
+      }
     });
   }, []);
 
@@ -36,14 +52,18 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password });
+      // Use a throwaway client that never touches localStorage — the tokens
+      // captured on mount are enough to authorize this one updateUser()
+      // call, and doing it this way means the update never re-persists a
+      // session that other tabs would pick up again.
+      const isolatedClient = createIsolatedAuthClient();
+      const { error: setSessionError } = await isolatedClient.auth.setSession(
+        recoveryTokensRef.current
+      );
+      if (setSessionError) throw setSessionError;
+      const { error: updateError } = await isolatedClient.auth.updateUser({ password });
       if (updateError) throw updateError;
       setSuccess(true);
-      // The recovery link signs the user in temporarily so updateUser() has
-      // a session to act on — sign back out afterward so they land on login
-      // and authenticate fresh with their new password, rather than staying
-      // signed in via that recovery session.
-      await supabase.auth.signOut();
       setTimeout(() => {
         // The reset link opens in a brand-new tab (email clients always do
         // this). That tab has no history to go "back" to, so close it and
