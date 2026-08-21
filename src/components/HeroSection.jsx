@@ -5,11 +5,14 @@ import zipcodes from "zipcodes";
 import HeroIllustration from "@/components/HeroIllustration";
 import ResourceCardMinimal from "@/components/ResourceCardMinimal";
 import ResourceDetailPanel from "@/components/ResourceDetailPanel";
+import CuratedResourceCard from "@/components/CuratedResourceCard";
+import CuratedResourceDetailPanel from "@/components/CuratedResourceDetailPanel";
 import { api } from "@/api/client";
 import { CURATED_RESOURCE_FILTERS } from "@/lib/constants";
 
 const SEARCH_RADIUS_MILES = 25;
 const ZIP_PATTERN = /^\d{5}$/;
+const RESULTS_LIMIT = 3;
 
 export default function HeroSection() {
   const [wasteType, setWasteType] = useState("");
@@ -19,6 +22,9 @@ export default function HeroSection() {
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState("");
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [curatedResults, setCuratedResults] = useState([]);
+  const [selectedCuratedResource, setSelectedCuratedResource] = useState(null);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     loadBusinesses();
@@ -35,7 +41,7 @@ export default function HeroSection() {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!wasteType || !zipCode.trim()) {
@@ -52,6 +58,47 @@ export default function HeroSection() {
 
     setError("");
     setHasSearched(true);
+    setSearching(true);
+
+    const normalizedZip = zipCode.trim();
+    const nearbyZips = new Set(zipcodes.radius(normalizedZip, SEARCH_RADIUS_MILES));
+    const selectedFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === wasteType);
+
+    // Resolve nearby zips to city names, since curated resources are stored
+    // by city (not zip) in the source spreadsheet — same technique as the
+    // full Resource Vault page, so a zip search matches curated data too.
+    const cityDistances = [...nearbyZips].reduce((map, z) => {
+      const info = zipcodes.lookup(z);
+      const dist = zipcodes.distance(normalizedZip, z) ?? Infinity;
+      if (info?.city && (!map.has(info.city) || dist < map.get(info.city))) {
+        map.set(info.city, dist);
+      }
+      return map;
+    }, new Map());
+    const nearbyCities = [...cityDistances.keys()];
+
+    try {
+      const { data } = await api.entities.CuratedResource.list({
+        cities: nearbyCities,
+        categoryKeywords: selectedFilter?.keywords,
+        limit: 200,
+      });
+
+      const closestDistance = (resource) =>
+        (resource.cities || []).reduce(
+          (min, c) => Math.min(min, cityDistances.get(c) ?? Infinity),
+          Infinity
+        );
+
+      setCuratedResults(
+        [...data].sort((a, b) => closestDistance(a) - closestDistance(b))
+      );
+    } catch (e) {
+      console.error(e);
+      setCuratedResults([]);
+    } finally {
+      setSearching(false);
+    }
   };
 
   const normalizedZip = zipCode.trim();
@@ -70,16 +117,28 @@ export default function HeroSection() {
 
           return matchesType && matchesZip;
         })
-        .sort((a, b) => {
-          if (!normalizedZip) return 0;
-          const zipA = a.zip_code ? String(a.zip_code).trim() : "";
-          const zipB = b.zip_code ? String(b.zip_code).trim() : "";
-          const distA = zipcodes.distance(normalizedZip, zipA) ?? Infinity;
-          const distB = zipcodes.distance(normalizedZip, zipB) ?? Infinity;
-
-          return distA - distB;
-        })
+        .map((business) => ({
+          type: "business",
+          data: business,
+          distance: zipcodes.distance(normalizedZip, business.zip_code ? String(business.zip_code).trim() : "") ?? Infinity,
+        }))
     : [];
+
+  const curatedForResults = hasSearched
+    ? curatedResults.map((resource) => ({
+        type: "curated",
+        data: resource,
+        distance: (resource.cities || []).reduce((min, c) => {
+          const zipsInCity = [...(nearbyZips || [])].filter((z) => zipcodes.lookup(z)?.city === c);
+          const d = zipsInCity.length ? zipcodes.distance(normalizedZip, zipsInCity[0]) ?? Infinity : Infinity;
+          return Math.min(min, d);
+        }, Infinity),
+      }))
+    : [];
+
+  const combinedResults = [...filteredBusinesses, ...curatedForResults]
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, RESULTS_LIMIT);
 
   return (
     <>
@@ -166,6 +225,12 @@ export default function HeroSection() {
         {selectedBusiness && (
           <ResourceDetailPanel business={selectedBusiness} onClose={() => setSelectedBusiness(null)} />
         )}
+        {selectedCuratedResource && (
+          <CuratedResourceDetailPanel
+            resource={selectedCuratedResource}
+            onClose={() => setSelectedCuratedResource(null)}
+          />
+        )}
       </section>
 
       {hasSearched && (
@@ -180,11 +245,11 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {loading ? (
+            {loading || searching ? (
               <div className="flex justify-center py-12">
                 <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
               </div>
-            ) : filteredBusinesses.length === 0 ? (
+            ) : combinedResults.length === 0 ? (
               <div className="rounded border border-border bg-card/70 p-8 text-center">
                 <p className="text-foreground/70 text-lg mb-2">No matching resources found.</p>
                 <p className="text-foreground/60 text-sm">Try a different zip code or waste type.</p>
@@ -192,17 +257,25 @@ export default function HeroSection() {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredBusinesses.slice(0, 6).map((business) => (
-                    <ResourceCardMinimal
-                      key={business.id}
-                      business={business}
-                      onClick={() => setSelectedBusiness(business)}
-                    />
-                  ))}
+                  {combinedResults.map((result) =>
+                    result.type === "business" ? (
+                      <ResourceCardMinimal
+                        key={result.data.id}
+                        business={result.data}
+                        onClick={() => setSelectedBusiness(result.data)}
+                      />
+                    ) : (
+                      <CuratedResourceCard
+                        key={result.data.id}
+                        resource={result.data}
+                        onClick={() => setSelectedCuratedResource(result.data)}
+                      />
+                    )
+                  )}
                 </div>
                 <div className="mt-8 flex justify-end border-t border-border pt-6">
                   <Link
-                    to="/resource"
+                    to={`/resource?zip=${zipCode}${wasteType && wasteType !== "all" ? `&category=${encodeURIComponent(wasteType)}` : ""}`}
                     className="inline-flex items-center gap-2 text-primary text-sm tracking-[0.1em] uppercase hover:gap-4 transition-all"
                   >
                     View More <ArrowRight size={16} />
