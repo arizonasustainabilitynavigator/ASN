@@ -17,7 +17,12 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        // Must land on the app's own hash route (#/reset-password), not a
+        // real path — this is a HashRouter SPA on GitHub Pages, so a real
+        // path like "/reset-password" 404s before React ever loads to read
+        // the recovery token. Same bug class as the Google sign-in redirect
+        // fixed earlier; see AuthContext.jsx's getAuthRedirectUrl().
+        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#/reset-password`,
       });
     } catch {
       // Always show success regardless, so we don't leak which emails are registered

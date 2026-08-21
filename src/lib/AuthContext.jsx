@@ -92,11 +92,22 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     checkUserAuth();
 
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setIsAuthenticated(!!session?.user);
       setIsLoadingAuth(false);
       if (session?.user) flushPendingQuizResponse(session.user.id);
+
+      // Supabase establishes a real session from the recovery link's token
+      // (that's how it lets the user set a new password), which otherwise
+      // looks just like a normal login. Without this, the HashRouter's own
+      // hash-based routing gets clobbered by Supabase cleaning up the token
+      // from the URL fragment, and the user lands signed-in on the homepage
+      // instead of the reset-password form. This event is the reliable
+      // signal, independent of whatever happens to the URL afterward.
+      if (event === "PASSWORD_RECOVERY") {
+        navigate("/reset-password", { replace: true });
+      }
     });
 
     return () => data?.subscription?.unsubscribe();
