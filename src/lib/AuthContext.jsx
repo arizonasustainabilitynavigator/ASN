@@ -90,6 +90,17 @@ export function AuthProvider({ children }) {
   }, [navigate]);
 
   useEffect(() => {
+    // main.jsx stashes this before calling getSession(), because that call
+    // clears the "type=recovery" hash as a side effect of parsing it —
+    // before this component ever mounts to subscribe to onAuthStateChange,
+    // so the PASSWORD_RECOVERY event it fires has no listener yet and is
+    // lost. This flag survives that gap; the live URL hash by this point
+    // does not.
+    if (sessionStorage.getItem("asn_pending_password_recovery")) {
+      sessionStorage.removeItem("asn_pending_password_recovery");
+      navigate("/reset-password", { replace: true });
+    }
+
     checkUserAuth();
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
