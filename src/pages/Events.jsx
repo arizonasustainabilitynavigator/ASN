@@ -31,8 +31,15 @@ export default function Events() {
 
   const loadEvents = async () => {
     try {
-      const data = await api.entities.Event.list();
-      setEvents(data);
+      const [userEvents, curatedEvents] = await Promise.all([
+        api.entities.Event.list(),
+        api.entities.CuratedEvent.list(),
+      ]);
+      const merged = [
+        ...userEvents,
+        ...curatedEvents.map((e) => ({ ...e, is_curated: true })),
+      ].sort((a, b) => new Date(a.date) - new Date(b.date));
+      setEvents(merged);
     } catch (e) {
       console.error(e);
     } finally {

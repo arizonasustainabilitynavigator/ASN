@@ -236,6 +236,21 @@ const api = {
         }
       },
     },
+    CuratedEvent: {
+      // Database-owned events synced in from the team's events spreadsheet via
+      // an Apps Script — read-only from the app, same as CuratedResource.
+      list: async () => {
+        const { data, error } = await supabase
+          .from("curated_events")
+          .select("*")
+          .order("date", { ascending: true });
+        if (error) {
+          if (!isMissingTableError(error)) throw error;
+          return [];
+        }
+        return data;
+      },
+    },
   },
 
   integrations: {

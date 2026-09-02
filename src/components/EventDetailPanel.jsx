@@ -54,7 +54,20 @@ export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) 
             </div>
           )}
 
-          <h2 className="font-heading text-2xl md:text-3xl text-foreground mb-6">{event.title}</h2>
+          <h2 className={`font-heading text-2xl md:text-3xl text-foreground ${event.is_curated ? "mb-2" : "mb-6"}`}>
+            {event.is_curated && (
+              <span
+                className="text-foreground/50 mr-1"
+                title="Added by Arizona Sustainability Navigator"
+              >
+                *
+              </span>
+            )}
+            {event.title}
+          </h2>
+          {event.is_curated && (
+            <p className="text-foreground/50 text-xs mb-6">* Added by Arizona Sustainability Navigator</p>
+          )}
 
           <div className="space-y-4 mb-8">
             {event.organization && (
