@@ -15,6 +15,7 @@ const PARTNERS = [
   { name: "2025 Breakthrough", file: "breakthrough.png", url: "https://www.ignitesparkedbybbb.org/bbb-breakthrough-accelerator" },
   { name: "Arizona Forward", file: "horizontal-fullcolor.png", url: "https://arizonaforward.org/" },
   { name: "University of Advancing Technology", file: "uat-university.png", url: "https://www.uat.edu/" },
+  { name: "4Equity Tech", file: "4equity-tech.png", url: "https://4equity.tech/" },
 ];
 
 const VISIBLE_COUNT = 3;
