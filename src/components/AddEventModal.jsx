@@ -16,10 +16,14 @@ export default function AddEventModal({ event, onClose, onCreated }) {
     title: event?.title || "",
     organization: event?.organization || "",
     date: event?.date ? moment(event.date).format("YYYY-MM-DD") : "",
+    time: event?.time || "",
     location: event?.location || "",
     categories: event?.categories || [],
     waste_types: event?.waste_types || [],
     description: event?.description || "",
+    link: event?.link || "",
+    phone: event?.phone || "",
+    contact_email: event?.contact_email || "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -48,13 +52,20 @@ export default function AddEventModal({ event, onClose, onCreated }) {
     setSubmitting(true);
     setError("");
     try {
+      // People naturally type "youtube.com" without a scheme - add one so
+      // the link actually works when clicked, instead of rejecting input
+      // that doesn't match a strict URL format.
+      const link = form.link.trim();
+      const normalizedLink = link && !/^https?:\/\//i.test(link) ? `https://${link}` : link;
+      const payload = { ...form, link: normalizedLink };
+
       const saved = isEditing
         ? await api.entities.Event.update(event.id, {
-            ...form,
+            ...payload,
             date: new Date(form.date).toISOString(),
           })
         : await api.entities.Event.create({
-            ...form,
+            ...payload,
             date: new Date(form.date).toISOString(),
             created_by: user.id,
           });
@@ -135,6 +146,19 @@ export default function AddEventModal({ event, onClose, onCreated }) {
 
           <div>
             <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
+              Time <span className="normal-case text-foreground/50">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={form.time}
+              onChange={(e) => update("time", e.target.value)}
+              placeholder="Time of the event"
+              className="w-full bg-background border border-border px-4 py-3 text-foreground text-sm placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
               Tags * <span className="normal-case text-foreground/50">(pick as many as apply)</span>
             </label>
             <div className="flex flex-wrap gap-2">
@@ -184,6 +208,45 @@ export default function AddEventModal({ event, onClose, onCreated }) {
               value={form.location}
               onChange={(e) => update("location", e.target.value)}
               placeholder="Location of the event"
+              className="w-full bg-background border border-border px-4 py-3 text-foreground text-sm placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
+              Event Link <span className="normal-case text-foreground/50">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={form.link}
+              onChange={(e) => update("link", e.target.value)}
+              placeholder="youtube.com or https://..."
+              className="w-full bg-background border border-border px-4 py-3 text-foreground text-sm placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
+              Contact Phone <span className="normal-case text-foreground/50">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={(e) => update("phone", e.target.value)}
+              placeholder="(555) 555-5555"
+              className="w-full bg-background border border-border px-4 py-3 text-foreground text-sm placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs tracking-[0.15em] uppercase text-foreground/70 block mb-2">
+              Contact Email <span className="normal-case text-foreground/50">(optional)</span>
+            </label>
+            <input
+              type="email"
+              value={form.contact_email}
+              onChange={(e) => update("contact_email", e.target.value)}
+              placeholder="you@example.com"
               className="w-full bg-background border border-border px-4 py-3 text-foreground text-sm placeholder:text-foreground/70 focus:border-primary focus:outline-none transition-colors"
             />
           </div>

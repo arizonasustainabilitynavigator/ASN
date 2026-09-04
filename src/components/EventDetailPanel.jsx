@@ -1,12 +1,17 @@
 import React, { useState } from "react";
-import { X, MapPin, Clock, Mail, CalendarDays, Trash2, Pencil, Building2 } from "lucide-react";
+import { X, MapPin, Clock, Mail, CalendarDays, Trash2, Pencil, Building2, Phone, Globe } from "lucide-react";
 import moment from "moment";
 import { useAuth } from "@/lib/AuthContext";
 import { api } from "@/api/client";
+import { copyToClipboard } from "@/lib/copyToClipboard";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [deleting, setDeleting] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const [emailRevealed, setEmailRevealed] = useState(false);
 
   if (!event) return null;
 
@@ -23,6 +28,11 @@ export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) 
       window.alert(err.message || "Couldn't delete this event.");
       setDeleting(false);
     }
+  };
+
+  const handleCopy = async (value) => {
+    await copyToClipboard(value);
+    toast({ title: `${value} has been copied to clipboard` });
   };
 
   return (
@@ -118,16 +128,50 @@ export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) 
             </>
           )}
 
-          {event.contact_email && (
+          {(event.phone || event.contact_email || event.link) && (
             <>
               <div className="h-[0.5px] bg-border my-6" />
-              <a
-                href={`mailto:${event.contact_email}`}
-                className="flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.1em] uppercase hover:bg-primary/90 transition-colors w-full"
-              >
-                <Mail size={14} />
-                Contact Organizer
-              </a>
+              {(event.phone || event.contact_email) && (
+                <div className="flex gap-3 mb-3">
+                  {event.phone && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhoneRevealed(true);
+                        handleCopy(event.phone);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 bg-foreground text-background py-3.5 text-sm tracking-[0.05em] uppercase transition-colors hover:bg-primary overflow-hidden"
+                    >
+                      <Phone size={14} className="flex-shrink-0" />
+                      <span className="truncate">{phoneRevealed ? event.phone : "Phone"}</span>
+                    </button>
+                  )}
+                  {event.contact_email && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailRevealed(true);
+                        handleCopy(event.contact_email);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 border border-foreground text-foreground py-3.5 text-sm tracking-[0.05em] uppercase transition-colors hover:bg-foreground hover:text-background overflow-hidden"
+                    >
+                      <Mail size={14} className="flex-shrink-0" />
+                      <span className="truncate">{emailRevealed ? event.contact_email : "Email"}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+              {event.link && (
+                <a
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 text-sm tracking-[0.1em] uppercase hover:bg-primary/90 transition-colors w-full"
+                >
+                  <Globe size={14} />
+                  Website
+                </a>
+              )}
             </>
           )}
 

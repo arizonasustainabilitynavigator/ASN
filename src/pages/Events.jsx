@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/api/client";
-import { Plus, X, Building2 } from "lucide-react";
+import { Plus, X, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
@@ -12,6 +12,8 @@ import AddEventModal, { CATEGORIES } from "@/components/AddEventModal";
 import { cn } from "@/lib/utils";
 import { WASTE_TYPES } from "@/lib/constants";
 
+const PAGE_SIZE = 6;
+
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,8 @@ export default function Events() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [wasteTypeFilter, setWasteTypeFilter] = useState("all");
   const [onlyMine, setOnlyMine] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState("1");
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
@@ -37,7 +41,11 @@ export default function Events() {
       ]);
       const merged = [
         ...userEvents,
-        ...curatedEvents.map((e) => ({ ...e, is_curated: true })),
+        // Curated events store the contact address as `email`, but the
+        // shared detail panel reads `contact_email` (the self-submitted
+        // events column name) - normalize it here so both event types
+        // render through the same panel without special-casing.
+        ...curatedEvents.map((e) => ({ ...e, contact_email: e.email, is_curated: true })),
       ].sort((a, b) => new Date(a.date) - new Date(b.date));
       setEvents(merged);
     } catch (e) {
@@ -86,6 +94,28 @@ export default function Events() {
     if (onlyMine && e.created_by !== user?.id) return false;
     return true;
   });
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedDate, categoryFilter, wasteTypeFilter, onlyMine]);
+
+  useEffect(() => {
+    setPageInput(String(page));
+  }, [page]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / PAGE_SIZE));
+  const eventsOnPage = filteredEvents.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const goToPage = (n) => {
+    setPage(Math.min(Math.max(1, n), totalPages));
+  };
+
+  const handlePageInputSubmit = (e) => {
+    e.preventDefault();
+    const n = parseInt(pageInput, 10);
+    if (!isNaN(n)) goToPage(n);
+    else setPageInput(String(page));
+  };
 
   const categoryColors = {
     workshop: "bg-primary/10 text-primary",
@@ -203,7 +233,7 @@ export default function Events() {
               </div>
             ) : (
               <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredEvents.map((event) => (
+                {eventsOnPage.map((event) => (
                   <button
                     key={event.id}
                     onClick={() => setSelectedEvent(event)}
@@ -269,6 +299,41 @@ export default function Events() {
                     </div>
                   </button>
                 ))}
+              </div>
+            )}
+
+            {filteredEvents.length > PAGE_SIZE && (
+              <div className="flex items-center justify-center gap-4 mt-10">
+                <button
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1}
+                  aria-label="Previous page"
+                  className="flex items-center justify-center w-10 h-10 border border-border text-foreground hover:border-primary disabled:opacity-30 disabled:hover:border-border transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                <form onSubmit={handlePageInputSubmit} className="flex items-center gap-2 text-sm text-foreground/70">
+                  <span>Page</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={pageInput}
+                    onChange={(e) => setPageInput(e.target.value)}
+                    onBlur={handlePageInputSubmit}
+                    className="w-14 bg-card border border-border px-2 py-1.5 text-center text-foreground focus:border-primary focus:outline-none transition-colors"
+                  />
+                  <span>of {totalPages}</span>
+                </form>
+
+                <button
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= totalPages}
+                  aria-label="Next page"
+                  className="flex items-center justify-center w-10 h-10 border border-border text-foreground hover:border-primary disabled:opacity-30 disabled:hover:border-border transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
               </div>
             )}
               </>
