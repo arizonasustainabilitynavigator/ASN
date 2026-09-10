@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { FileText, Download, ExternalLink, Info } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { FileText, Download, ExternalLink, Info, Lock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +14,26 @@ import {
 
 const SECTIONS = [
   {
+    title: "Executive Summary",
+    items: [
+      {
+        name: "Arizona Sustainability Navigator: Executive Summary",
+        description:
+          "A one page overview of the project's key findings, publicly available to all visitors.",
+        file: "ASN_Executive Summary_Final.pdf",
+      },
+    ],
+  },
+  {
     title: "White Papers",
     items: [
+      {
+        name: "Arizona Sustainability Navigator: White Paper (Gaps Assessment)",
+        description:
+          "Get complete access to our white paper on Arizona's sustainability landscape, the full research behind this project so far, free when you join.",
+        file: "ASN_White Paper_Gaps_Final.pdf",
+        locked: true,
+      },
       {
         name: "Understanding Barriers to Sustainability Adoption for Arizona Small Businesses, Nonprofits, and Economic Development Agencies",
         description:
@@ -122,8 +142,55 @@ function GridCard({ item, onPreview }) {
   );
 }
 
+function JoinNowButton() {
+  const [pressed, setPressed] = useState(false);
+  const navigate = useNavigate();
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (pressed) return;
+    setPressed(true);
+    setTimeout(() => navigate("/register"), 220);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`shrink-0 inline-flex items-center justify-center px-6 py-3 text-sm font-medium tracking-wide whitespace-nowrap transition-all duration-200 ${
+        pressed
+          ? "bg-[hsl(var(--accent))] text-accent-foreground scale-95"
+          : "bg-primary text-primary-foreground hover:bg-primary/90"
+      }`}
+    >
+      Join Now
+    </button>
+  );
+}
+
+function LockedCard({ item }) {
+  return (
+    <div className="w-full flex flex-col md:flex-row md:items-center gap-6 md:gap-10 p-8 md:p-10 border border-border bg-card">
+      <div className="shrink-0 flex items-center justify-center w-14 h-14 rounded-full bg-primary/10">
+        <Lock className="text-primary" size={24} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="inline-block text-xs tracking-[0.1em] uppercase text-primary border border-primary/40 px-2.5 py-1 mb-3">
+          Members Only
+        </span>
+        <h3 className="font-heading text-xl md:text-2xl text-foreground mb-2 leading-snug">
+          Join our community. Unlock the full white paper.
+        </h3>
+        <p className="text-foreground/70 text-sm leading-relaxed">{item.description}</p>
+      </div>
+      <JoinNowButton />
+    </div>
+  );
+}
+
 export default function Insights() {
   const [previewItem, setPreviewItem] = useState(null);
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,24 +210,32 @@ export default function Insights() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pb-24 md:pb-32">
-        <div className="h-[0.5px] bg-border mb-16 md:mb-24" />
+        <div className="h-[0.5px] bg-border mb-16 md:mb-20" />
 
         {SECTIONS.map((section, i) => (
-          <div key={section.title} className={i < SECTIONS.length - 1 ? "mb-20 md:mb-28" : ""}>
-            <div className="flex items-baseline justify-between mb-8">
+          <div key={section.title} className={i < SECTIONS.length - 1 ? "mb-16 md:mb-20" : ""}>
+            <div className="flex items-baseline justify-between mb-6">
               <h2 className="font-heading text-2xl md:text-3xl text-foreground">{section.title}</h2>
               <span className="text-xs tracking-[0.15em] uppercase text-foreground/40">
                 {section.items.length} {section.items.length === 1 ? "Document" : "Documents"}
               </span>
             </div>
 
-            {section.items.length === 1 ? (
-              <FeaturedCard item={section.items[0]} onPreview={setPreviewItem} />
-            ) : (
+            {section.title === "Research & Data" || section.title === "About the Project" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 {section.items.map((item) => (
                   <GridCard key={item.file} item={item} onPreview={setPreviewItem} />
                 ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5">
+                {section.items.map((item) =>
+                  item.locked && !isAuthenticated ? (
+                    <LockedCard key={item.file} item={item} />
+                  ) : (
+                    <FeaturedCard key={item.file} item={item} onPreview={setPreviewItem} />
+                  )
+                )}
               </div>
             )}
           </div>
