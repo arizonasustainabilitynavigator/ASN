@@ -28,9 +28,9 @@ const SECTIONS = [
     title: "White Papers",
     items: [
       {
-        name: "Arizona Sustainability Navigator: White Paper (Gaps Assessment)",
+        name: "Arizona's Sustainability Infrastructure: A Statewide Assessment",
         description:
-          "Get complete access to our white paper on Arizona's sustainability landscape, the full research behind this project so far, free when you join.",
+          "A statewide assessment of Arizona's sustainability resource landscape: 87 categories, over 10,000 verified resources, and the gaps still standing in the way. From Collaboration for Good.",
         file: "ASN_White Paper_Gaps_Final.pdf",
         locked: true,
       },
@@ -179,7 +179,7 @@ function LockedCard({ item }) {
           Members Only
         </span>
         <h3 className="font-heading text-xl md:text-2xl text-foreground mb-2 leading-snug">
-          Join our community. Unlock the full white paper.
+          {item.name}
         </h3>
         <p className="text-foreground/70 text-sm leading-relaxed">{item.description}</p>
       </div>
