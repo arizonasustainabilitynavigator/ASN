@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { getAllCounties, getCountiesForZip } from "@/utils/countyLookup";
 
+// County picker, auto-selected from a zip code when it uniquely matches one
 export default function CountyDropdown({ zip, value, onChange }) {
   const [allCounties, setAllCounties] = useState([]);
 
-  // Load the full county list once on mount — always available regardless of zip.
+  // Load the full county list once on mount
   useEffect(() => {
     getAllCounties().then(setAllCounties);
   }, []);
 
-  // When the zip changes and matches exactly one county, auto-select it
-  // as a convenience — but the dropdown stays open to every option either way.
+  // Auto-select the county when the zip matches exactly one
   useEffect(() => {
     if (!zip || zip.length < 5) return;
 

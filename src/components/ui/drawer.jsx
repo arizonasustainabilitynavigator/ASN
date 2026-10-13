@@ -5,6 +5,7 @@ import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
 
+// Drawer UI primitive (vaul wrapper)
 const Drawer = ({
   shouldScaleBackground = true,
   ...props

@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { MapPin } from "lucide-react";
 
+// Compact business resource card (homepage quick-search results)
 export default function ResourceCardMinimal({ business, onClick }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
+  // Require sign-in before viewing details
   const handleClick = () => {
     if (!isAuthenticated) {
       navigate("/register");

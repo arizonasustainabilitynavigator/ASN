@@ -1,3 +1,4 @@
+// Quiz answer option lists
 export const ORG_COUNTY_OPTIONS = [
 "Apache County",
 "Cochise County",
@@ -193,6 +194,7 @@ export const ORG_PLAN_FORMAT_OPTIONS = [
 ]
 
 
+// Next-step recommendation copy, by quiz result category
 export const STEP_RECOMMENDATIONS = {
   recycling: [
     {
@@ -256,13 +258,7 @@ export const STEP_RECOMMENDATIONS = {
   ],
 };
 
-// Maps a sustainability topic/incentive answer onto a label from
-// CURATED_RESOURCE_FILTERS (src/lib/constants.js) - the exact same list
-// used by the Resource tab's category dropdown. This is the single source
-// of truth for "what's their top priority": it drives both which real
-// resources get shown on the quiz results page and which filter gets
-// pre-applied when they land on the Resource tab, so the two can never
-// disagree with each other the way the old guidance-text system could.
+// Quiz answer -> resource filter label mapping
 const TOPIC_TO_FILTER_LABEL = {
   "Energy efficiency": "Energy & Solar",
   "Waste reduction & recycling": "Recycling & Waste",
@@ -282,12 +278,7 @@ const INCENTIVE_TO_FILTER_LABEL = {
   "Tax credits": "Rebates & Incentives",
 };
 
-// Picks the single most important resource category: the first
-// sustainability topic they selected (selection order = priority) that
-// maps to a real filter, falling back to their first desired incentive.
-// Returns null if nothing maps (e.g. they picked "I don't know where to
-// start" and no incentives) - callers should fall back to generic
-// guidance in that case.
+// Picks the user's top-priority resource filter from their quiz answers
 export function getTopPriorityFilterLabel(answers) {
   for (const topic of answers.orgSustainabilityTopics || []) {
     if (TOPIC_TO_FILTER_LABEL[topic]) return TOPIC_TO_FILTER_LABEL[topic];

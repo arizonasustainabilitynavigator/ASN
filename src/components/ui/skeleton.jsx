@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 
+// Loading placeholder UI primitive
 function Skeleton({
   className,
   ...props

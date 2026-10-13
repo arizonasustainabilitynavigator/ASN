@@ -8,6 +8,7 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 
+// Renders the active toast queue
 export function Toaster() {
   const { toasts, dismiss } = useToast();
 

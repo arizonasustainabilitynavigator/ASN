@@ -1,6 +1,6 @@
-// Inspired by react-hot-toast library
 import { useState, useEffect } from "react";
 
+// Constants and action types
 const TOAST_LIMIT = 20;
 const TOAST_REMOVE_DELAY = 1000000;
 const DEFAULT_TOAST_DURATION = 25000;
@@ -12,6 +12,7 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 };
 
+// Toast id generator + removal queue
 let count = 0;
 
 function genId() {
@@ -45,6 +46,7 @@ const _clearFromRemoveQueue = (toastId) => {
   }
 };
 
+// Toast state reducer
 export const reducer = (state, action) => {
   switch (action.type) {
     case actionTypes.ADD_TOAST:
@@ -64,8 +66,6 @@ export const reducer = (state, action) => {
     case actionTypes.DISMISS_TOAST: {
       const { toastId } = action;
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
@@ -100,6 +100,7 @@ export const reducer = (state, action) => {
   }
 };
 
+// Module-level store (shared across all useToast() consumers)
 const listeners = [];
 
 let memoryState = { toasts: [] };
@@ -111,6 +112,7 @@ function dispatch(action) {
   });
 }
 
+// Fire a toast
 function toast({ ...props }) {
   const id = genId();
 
@@ -144,6 +146,7 @@ function toast({ ...props }) {
   };
 }
 
+// Hook: subscribes a component to the toast store
 function useToast() {
   const [state, setState] = useState(memoryState);
 

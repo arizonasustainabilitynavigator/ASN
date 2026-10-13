@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+// Insights page document listing content
 const SECTIONS = [
   {
     title: "Executive Summary",
@@ -78,10 +79,12 @@ const SECTIONS = [
   },
 ];
 
+// Builds the URL for a document file
 function fileUrl(file) {
   return `${import.meta.env.BASE_URL}insights/${encodeURIComponent(file)}`;
 }
 
+// Document card components
 function DownloadLink({ item }) {
   return (
     <a
@@ -188,6 +191,7 @@ function LockedCard({ item }) {
   );
 }
 
+// Insights page (document library, members-only gated)
 export default function Insights() {
   const [previewItem, setPreviewItem] = useState(null);
   const { isAuthenticated } = useAuth();

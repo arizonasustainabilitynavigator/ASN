@@ -1,5 +1,6 @@
 import * as React from "react"
 
+// Hook: tracks an element's size via ResizeObserver
 export function useSize(ref) {
   const [size, setSize] = React.useState(null)
 

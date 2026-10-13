@@ -9,6 +9,7 @@ const DefaultFallback = () => (
   </div>
 );
 
+// Route guard: renders its children only when signed in
 export default function ProtectedRoute({ fallback = <DefaultFallback />, unauthenticatedElement }) {
   const { isAuthenticated, isLoadingAuth, authChecked, authError, checkUserAuth } = useAuth();
 

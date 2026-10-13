@@ -13,16 +13,15 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// In-memory cache: { US: { set: Set(...), list: [...] }, CA: {...}, ... }
+// Zip code data cache, per country
 const zipDataCache = {};
 
+// Load (and cache) the zip code data for a country
 function loadZipData(countryCode) {
   if (zipDataCache[countryCode]) return zipDataCache[countryCode];
 
   const postalCodesDir = path.join(__dirname, "..", "..", "data", "postal-codes");
 
-  // Accept either naming convention: "zipcodes.US.csv" (the repo's default
-  // extracted filename) or a plain "US.csv" (if you renamed it yourself).
   const candidateNames = [
     `zipcodes.${countryCode}.csv`,
     `${countryCode}.csv`,
@@ -47,10 +46,12 @@ function loadZipData(countryCode) {
   return data;
 }
 
+// Normalize a zip code for comparison
 function normalizeZip(zip) {
   return String(zip).trim().toUpperCase().replace(/\s+/g, "");
 }
 
+// Route: suggest countries matching a (possibly partial) zip code
 router.get("/suggest-country", (req, res) => {
   const { zip } = req.query;
 
@@ -64,11 +65,9 @@ router.get("/suggest-country", (req, res) => {
   for (const code of SUPPORTED_ZIP_LOOKUP_CODES) {
     const { set, list } = loadZipData(code);
 
-    // Exact match first (fast) — a fully-typed zip.
+    // Exact match, then prefix match
     let isMatch = set.has(normalized);
 
-    // Fall back to prefix match — a partially-typed zip
-    // (e.g. Canadian FSA "V7Y" before the full "V7Y 1B3").
     if (!isMatch) {
       isMatch = list.some((z) => z.startsWith(normalized));
     }

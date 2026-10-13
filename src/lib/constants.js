@@ -1,18 +1,7 @@
+// Business waste-type tags
 export const WASTE_TYPES = ["Electricity", "Water", "Waste", "Recycling", "Transportation", "Food", "Paper", "Chemicals", "Rebates", "Grants", "Climate", "Conservation", "Community", "Knowledge"];
 
-// Filters for the curated resource directory, matched against the
-// `category` column (which holds ~80 raw spreadsheet tab names) via keyword
-// search rather than an exact match, so one filter can cover several
-// related tabs at once. Covers every imported spreadsheet tab except two
-// generic catch-all sheets ("More resources", "Resources by category
-// questions") that don't fit a specific topic — those are still reachable
-// via the free-text search box.
-// Each filter also lists which business waste-type tags it's actually
-// related to (relatedWasteTypes), so selecting a curated category also
-// shows businesses whose own waste_types tags overlap with it, instead of
-// hiding every business outright. Categories with no real waste-type
-// equivalent (Policy & Advocacy, Youth & Education, etc.) just show no
-// businesses — that's correct, not a bug.
+// Curated resource directory category filters
 export const CURATED_RESOURCE_FILTERS = [
   { label: "Rebates & Incentives", keywords: ["rebate", "incentive"], relatedWasteTypes: ["Rebates"] },
   { label: "Financing & Grants", keywords: ["financ", "grant", "tax credit", "bank"], relatedWasteTypes: ["Grants"] },
@@ -35,10 +24,7 @@ export const CURATED_RESOURCE_FILTERS = [
   { label: "Youth & Education", keywords: ["youth", "school", "knowledge"], relatedWasteTypes: ["Community", "Knowledge"] },
 ];
 
-// Maps each business waste-type tag to keywords matched against a curated
-// resource's category, so the same "All Waste Types" filter (and matching
-// badges) work for curated resources too, not just self-submitted
-// businesses. A resource can match more than one waste type.
+// Waste-type tag -> matching keywords
 export const WASTE_TYPE_KEYWORDS = {
   Electricity: ["energy", "electric", "solar", "renewable", "led", "power"],
   Water: ["water", "rainwater"],

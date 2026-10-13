@@ -4,6 +4,7 @@ import { formatResourceLocations } from "@/lib/formatResourceLocations";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { useToast } from "@/components/ui/use-toast";
 
+// Full-detail slide-over panel for a team-curated resource
 export default function CuratedResourceDetailPanel({ resource, onClose }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const { toast } = useToast();

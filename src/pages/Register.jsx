@@ -13,7 +13,9 @@ import { useAuth } from "@/lib/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { getErrorMessage } from "@/lib/utils";
 
+// Registration page (with email OTP verification step)
 export default function Register() {
+  // State
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +27,7 @@ export default function Register() {
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
+  // Handlers
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -90,6 +93,7 @@ export default function Register() {
     }
   };
 
+  // Render: email verification code step
   if (showOtp) {
     return (
       <AuthLayout
@@ -146,6 +150,7 @@ export default function Register() {
     );
   }
 
+  // Render: sign-up form
   return (
     <AuthLayout
       icon={UserPlus}

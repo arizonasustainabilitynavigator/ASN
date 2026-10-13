@@ -4,6 +4,7 @@ import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils"
 
+// Label UI primitive (Radix wrapper)
 const labelVariants = cva(
   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 )

@@ -2,9 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+// Homepage mission section (with play-on-scroll video)
 export default function MissionSection() {
   const videoRef = useRef(null);
 
+  // Play/pause the video based on viewport visibility
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;

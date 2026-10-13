@@ -1,5 +1,6 @@
 import React from "react";
 
+// Node positions for the network diagram
 const NODES = [
   { x: 90, y: 78, color: "hsl(var(--primary))" },
   { x: 310, y: 78, color: "hsl(var(--accent-light))" },
@@ -7,6 +8,7 @@ const NODES = [
   { x: 310, y: 222, color: "hsl(var(--primary))" },
 ];
 
+// Computes a pinwheel blade's position and rotation
 function pinwheelBlade(centerX, centerY, orbitRadius, size, angleDeg) {
   const angle = (angleDeg * Math.PI) / 180;
   const x = centerX + orbitRadius * Math.cos(angle);
@@ -16,6 +18,7 @@ function pinwheelBlade(centerX, centerY, orbitRadius, size, angleDeg) {
   return { x, y, rotate, points };
 }
 
+// Decorative network illustration for the About page
 export default function SustainabilityIllustration() {
   return (
     <svg

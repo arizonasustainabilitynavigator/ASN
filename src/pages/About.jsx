@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SustainabilityIllustration from "@/components/SustainabilityIllustration";
 
+// About page
 export default function About() {
   return (
     <div className="min-h-screen bg-background">

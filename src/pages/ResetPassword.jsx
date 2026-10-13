@@ -8,7 +8,9 @@ import AuthLayout from "@/components/AuthLayout";
 import PasswordInput from "@/components/PasswordInput";
 import { getErrorMessage } from "@/lib/utils";
 
+// Set-new-password page (reached via the recovery email link)
 export default function ResetPassword() {
+  // State
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +25,7 @@ export default function ResetPassword() {
     });
   }, []);
 
+  // Handler: validate, update password, sign out, redirect to login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -36,17 +39,8 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      // Act on the recovery session Supabase already established for this
-      // tab when the link redirected here — that's the one guaranteed-valid
-      // session we have, so use it directly rather than re-authenticating a
-      // second client (which depends on a refresh_token this flow doesn't
-      // always provide, and was failing with "Auth session missing!").
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
-      // scope: "local" clears only this tab's session, without the network
-      // round-trip "global" scope makes to revoke it server-side — the
-      // password is already changed at this point, so there's nothing left
-      // to protect by revoking, and this keeps the sign-out fast.
       await supabase.auth.signOut({ scope: "local" });
       setSuccess(true);
       setTimeout(() => {
@@ -59,6 +53,7 @@ export default function ResetPassword() {
     }
   };
 
+  // Render: loading state
   if (hasRecoverySession === null) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -67,6 +62,7 @@ export default function ResetPassword() {
     );
   }
 
+  // Render: expired/invalid link
   if (!hasRecoverySession) {
     return (
       <AuthLayout
@@ -86,6 +82,7 @@ export default function ResetPassword() {
     );
   }
 
+  // Render: success state
   if (success) {
     return (
       <AuthLayout icon={KeyRound} title="Password updated" subtitle="Redirecting you now...">
@@ -96,6 +93,7 @@ export default function ResetPassword() {
     );
   }
 
+  // Render: new password form
   return (
     <AuthLayout icon={KeyRound} title="Set a new password" subtitle="Choose a new password for your account">
       {error && (

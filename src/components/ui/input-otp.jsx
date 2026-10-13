@@ -4,6 +4,7 @@ import { Minus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// OTP input UI primitive (input-otp wrapper)
 const InputOTP = React.forwardRef(({ className, containerClassName, ...props }, ref) => (
   <OTPInput
     ref={ref}

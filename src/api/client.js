@@ -1,9 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { WASTE_TYPES } from "@/lib/constants";
 
-// Local fallback for events until the `events` table migration
-// (supabase/migrations/0004_events.sql) has been run against the project.
-// Once that table exists, Supabase calls stop erroring and this is skipped.
+// Local-storage fallback for events (used until the `events` table exists)
 const LOCAL_EVENTS_KEY = "asn_local_events";
 
 const readLocalEvents = () => {
@@ -18,10 +16,7 @@ const writeLocalEvents = (events) => {
   localStorage.setItem(LOCAL_EVENTS_KEY, JSON.stringify(events));
 };
 
-// Only fall back to localStorage when the `events` table genuinely doesn't
-// exist yet (migration not run). Any other error - RLS rejection, a trigger
-// blocking profanity, a network issue - must propagate to the caller instead
-// of being silently swallowed by writing to local storage anyway.
+// Whether an error means the `events` table doesn't exist yet
 const isMissingTableError = (error) =>
   error?.code === "PGRST205" ||
   error?.code === "42P01" ||
@@ -77,8 +72,10 @@ const ensureLocalSampleEvents = () => {
   return sampleEvents;
 };
 
+// Data access layer: entities and integrations used throughout the app
 const api = {
   entities: {
+    // Self-submitted business/organization profiles
     BusinessProfile: {
       list: async () => {
         const { data, error } = await supabase
@@ -118,13 +115,8 @@ const api = {
         return created;
       },
     },
+    // Team-curated resource directory (imported from a spreadsheet)
     CuratedResource: {
-      // Database-owned resources imported from the team's research spreadsheet.
-      // Server-side filtered/paginated since this table can hold thousands of rows.
-      // Queries the curated_resources_grouped view, which collapses rows
-      // that share the same resource name + link (the same statewide/
-      // regional resource listed once per city in the source spreadsheet)
-      // into a single row with a combined cities/counties array.
       list: async ({ category, categoryKeywords, wasteTypeKeywords, county, cities, search, limit = 60, offset = 0 } = {}) => {
         let request = supabase
           .from("curated_resources_grouped")
@@ -154,11 +146,7 @@ const api = {
             `city_text.ilike.%${term}%`,
             `county_text.ilike.%${term}%`,
           ];
-          // Also match against the fixed tag vocabulary (e.g. typing
-          // "climate" surfaces everything tagged Climate), since tags is
-          // an array column PostgREST can't ILIKE directly - contains (cs)
-          // needs the exact tag value, so match it against typed tags
-          // whose name contains what was typed.
+          // Also match against the tag vocabulary
           const matchingTags = WASTE_TYPES.filter((tag) => tag.toLowerCase().includes(term.toLowerCase()));
           for (const tag of matchingTags) {
             clauses.push(`tags.cs.{${tag}}`);
@@ -171,10 +159,8 @@ const api = {
         return { data, count: count ?? data.length };
       },
     },
+    // Completed sustainability quiz submissions
     QuizResponse: {
-      // Ties a completed sustainability quiz submission to the account
-      // that took it, so the team can see what users need by browsing
-      // this table directly in Supabase.
       create: async ({ userId, answers }) => {
         const { data, error } = await supabase
           .from("quiz_responses")
@@ -185,6 +171,7 @@ const api = {
         return data;
       },
     },
+    // User-submitted events (falls back to localStorage, see above)
     Event: {
       list: async () => {
         const { data, error } = await supabase
@@ -236,9 +223,8 @@ const api = {
         }
       },
     },
+    // Team-curated events (read-only, synced from a spreadsheet)
     CuratedEvent: {
-      // Database-owned events synced in from the team's events spreadsheet via
-      // an Apps Script — read-only from the app, same as CuratedResource.
       list: async () => {
         const { data, error } = await supabase
           .from("curated_events")
@@ -254,6 +240,7 @@ const api = {
   },
 
   integrations: {
+    // File/image upload to storage
     Core: {
       UploadFile: async ({ file, userId }) => {
         if (!file) {

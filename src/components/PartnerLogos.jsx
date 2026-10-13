@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Fill in `url` for each partner once the link document is available.
-// Leave as null and the logo renders without a link (no click-through).
+// Partner logo content
 const PARTNERS = [
   { name: "Collaboration for Good", file: "cfg.png", url: "https://www.collaborationforgood.com" },
   { name: "City of Phoenix", file: "city-of-phoenix.png", url: "https://www.phoenix.gov/" },
@@ -22,6 +21,7 @@ const VISIBLE_COUNT = 3;
 const ROTATE_MS = 6000;
 const FADE_MS = 400;
 
+// Splits a list into fixed-size groups
 function chunk(list, size) {
   const groups = [];
   for (let i = 0; i < list.length; i += size) {
@@ -30,7 +30,9 @@ function chunk(list, size) {
   return groups;
 }
 
+// Auto-rotating partner logo carousel
 export default function PartnerLogos() {
+  // State
   const groups = useMemo(() => chunk(PARTNERS, VISIBLE_COUNT), []);
   const [groupIndex, setGroupIndex] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -44,10 +46,8 @@ export default function PartnerLogos() {
     isPausedRef.current = isPaused;
   }, [isPaused]);
 
+  // Fade-transition to the next/previous group
   const goTo = (direction) => {
-    // Only clear a *pending* fade timeout (one that hasn't fired yet) — never
-    // interrupts a transition already mid-flight, so hovering can't freeze
-    // the section at opacity 0.
     clearTimeout(fadeTimeoutRef.current);
     setVisible(false);
     fadeTimeoutRef.current = setTimeout(() => {
@@ -56,10 +56,7 @@ export default function PartnerLogos() {
     }, FADE_MS);
   };
 
-  // A single interval runs for the component's lifetime. Pausing just skips
-  // the tick (checked fresh via the ref each time) instead of tearing down
-  // and rebuilding the timer — so a hover during a transition never cancels
-  // the fade-back-in that's already in progress.
+  // Auto-rotate on an interval (pausable via the ref)
   useEffect(() => {
     if (groups.length <= 1) return undefined;
 
@@ -81,6 +78,7 @@ export default function PartnerLogos() {
 
   const current = groups[groupIndex] ?? [];
 
+  // Render
   return (
     <section
       className="bg-background border-t border-border"

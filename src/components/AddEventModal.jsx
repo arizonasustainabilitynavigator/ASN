@@ -8,7 +8,9 @@ import { WASTE_TYPES } from "@/lib/constants";
 
 export const CATEGORIES = ["cleanup", "workshop", "networking", "conference", "webinar"];
 
+// Modal: create/edit an event
 export default function AddEventModal({ event, onClose, onCreated }) {
+  // State
   const { user } = useAuth();
   const { toast } = useToast();
   const isEditing = !!event;
@@ -28,6 +30,7 @@ export default function AddEventModal({ event, onClose, onCreated }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Handlers
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
   const toggleInList = (field, value) => {
@@ -52,9 +55,7 @@ export default function AddEventModal({ event, onClose, onCreated }) {
     setSubmitting(true);
     setError("");
     try {
-      // People naturally type "youtube.com" without a scheme - add one so
-      // the link actually works when clicked, instead of rejecting input
-      // that doesn't match a strict URL format.
+      // Add a scheme to bare links (e.g. "youtube.com") so they work when clicked
       const link = form.link.trim();
       const normalizedLink = link && !/^https?:\/\//i.test(link) ? `https://${link}` : link;
       const payload = { ...form, link: normalizedLink };
@@ -85,6 +86,7 @@ export default function AddEventModal({ event, onClose, onCreated }) {
     }
   };
 
+  // Render
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-6">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />

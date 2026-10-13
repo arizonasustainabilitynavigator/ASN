@@ -8,7 +8,9 @@ import ResourceCard from "@/components/ResourceCard";
 import ResourceDetailPanel from "@/components/ResourceDetailPanel";
 import { WASTE_TYPES } from "@/lib/constants";
 
+// Resource directory page (business listings only)
 export default function Dashboard() {
+  // State
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -19,6 +21,7 @@ export default function Dashboard() {
     loadBusinesses();
   }, []);
 
+  // Data loading
   const loadBusinesses = async () => {
     try {
       const data = await api.entities.BusinessProfile.list("-created_date", 50);
@@ -30,6 +33,7 @@ export default function Dashboard() {
     }
   };
 
+  // Search/filter
   const filtered = businesses.filter((b) => {
     const normalizedSearch = search.trim().toLowerCase();
     const matchesName = b.business_name?.toLowerCase().includes(normalizedSearch);
@@ -39,6 +43,7 @@ export default function Dashboard() {
     return matchesSearch && matchesType;
   });
 
+  // Render
   return (
     <div className="min-h-screen bg-background">
       <div className="copper-thread" />

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+// Homepage "join the network" call-to-action section
 export default function CTASection() {
   return (
     <section className="relative py-24 md:py-40 overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.2),_transparent_40%),radial-gradient(circle_at_bottom_right,_rgba(132,204,22,0.15),_transparent_30%),bg-slate-950]">

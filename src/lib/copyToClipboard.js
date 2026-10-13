@@ -1,5 +1,4 @@
-// Copies text to the clipboard, falling back to a hidden textarea + execCommand
-// for browsers/contexts where navigator.clipboard isn't available (e.g. non-HTTPS).
+// Copies text to the clipboard
 export async function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     await navigator.clipboard.writeText(text);

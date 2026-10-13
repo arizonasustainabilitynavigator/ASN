@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
+// Decodes a URL hash into an element id
 const getHashId = (hash) => {
   const rawId = hash.slice(1);
 
@@ -11,6 +12,7 @@ const getHashId = (hash) => {
   }
 };
 
+// Scrolls to top (or to a hash target) on route change
 export default function ScrollToTop() {
   const { pathname, hash } = useLocation();
   const navigationType = useNavigationType();

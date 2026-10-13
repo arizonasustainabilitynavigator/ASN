@@ -1,5 +1,6 @@
 import React from "react";
 
+// Google "G" logo icon
 export default function GoogleIcon({ className = "w-5 h-5" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

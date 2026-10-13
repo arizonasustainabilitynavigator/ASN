@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Minus } from "lucide-react";
 
+// Collapsible FAQ question/answer item
 export default function FAQItem({ question, answer }) {
   const [open, setOpen] = useState(false);
 

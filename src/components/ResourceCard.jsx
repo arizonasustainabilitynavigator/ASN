@@ -5,6 +5,7 @@ import { Phone, Mail, Globe, MapPin } from "lucide-react";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { useToast } from "@/components/ui/use-toast";
 
+// Business resource directory card
 export default function ResourceCard({ business, onClick }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const navigate = useNavigate();

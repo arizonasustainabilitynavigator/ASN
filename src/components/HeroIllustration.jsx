@@ -1,5 +1,6 @@
 import React from "react";
 
+// Decorative background illustration for the homepage hero
 export default function HeroIllustration() {
   return (
     <svg

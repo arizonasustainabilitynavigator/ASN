@@ -7,21 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
+// Forgot-password request page
 export default function ForgotPassword() {
+  // State
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
+  // Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await supabase.auth.resetPasswordForEmail(email, {
-        // Must land on the app's own hash route (#/reset-password), not a
-        // real path — this is a HashRouter SPA on GitHub Pages, so a real
-        // path like "/reset-password" 404s before React ever loads to read
-        // the recovery token. Same bug class as the Google sign-in redirect
-        // fixed earlier; see AuthContext.jsx's getAuthRedirectUrl().
+        // Hash route (HashRouter), not a real path
         redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#/reset-password`,
       });
     } catch {
@@ -32,6 +31,7 @@ export default function ForgotPassword() {
     }
   };
 
+  // Render
   return (
     <AuthLayout
       icon={Mail}

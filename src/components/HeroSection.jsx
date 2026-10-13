@@ -14,7 +14,9 @@ const SEARCH_RADIUS_MILES = 25;
 const ZIP_PATTERN = /^\d{5}$/;
 const RESULTS_LIMIT = 3;
 
+// Homepage hero with quick-search for resources
 export default function HeroSection() {
+  // State
   const [wasteType, setWasteType] = useState("");
   const [zipCode, setZipCode] = useState("");
   const [businesses, setBusinesses] = useState([]);
@@ -30,6 +32,7 @@ export default function HeroSection() {
     loadBusinesses();
   }, []);
 
+  // Data loading
   const loadBusinesses = async () => {
     try {
       const data = await api.entities.BusinessProfile.list("-created_date", 100);
@@ -41,6 +44,7 @@ export default function HeroSection() {
     }
   };
 
+  // Search handler
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -64,9 +68,7 @@ export default function HeroSection() {
     const nearbyZips = new Set(zipcodes.radius(normalizedZip, SEARCH_RADIUS_MILES));
     const selectedFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === wasteType);
 
-    // Resolve nearby zips to city names, since curated resources are stored
-    // by city (not zip) in the source spreadsheet — same technique as the
-    // full Resource Vault page, so a zip search matches curated data too.
+    // Resolve nearby zips to city names, to match curated resources (stored by city)
     const cityDistances = [...nearbyZips].reduce((map, z) => {
       const info = zipcodes.lookup(z);
       const dist = zipcodes.distance(normalizedZip, z) ?? Infinity;
@@ -101,6 +103,7 @@ export default function HeroSection() {
     }
   };
 
+  // Derived search results
   const normalizedZip = zipCode.trim();
   const nearbyZips = normalizedZip ? new Set(zipcodes.radius(normalizedZip, SEARCH_RADIUS_MILES)) : null;
 
@@ -140,6 +143,7 @@ export default function HeroSection() {
     .sort((a, b) => a.distance - b.distance)
     .slice(0, RESULTS_LIMIT);
 
+  // Render
   return (
     <>
       <section className="relative min-h-[80vh] flex flex-col justify-center overflow-hidden bg-background">

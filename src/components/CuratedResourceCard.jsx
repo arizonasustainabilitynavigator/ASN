@@ -4,6 +4,7 @@ import { formatResourceLocations } from "@/lib/formatResourceLocations";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { useToast } from "@/components/ui/use-toast";
 
+// Team-curated resource directory card
 export default function CuratedResourceCard({ resource, onClick }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const { toast } = useToast();

@@ -20,10 +20,11 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 
+// App shell: route table, gated on the initial auth check
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
+  // Loading state
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -32,7 +33,7 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Render the main app
+  // Routes
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
 };
 
 
+// App root: providers + shell
 function App() {
   return (
     <QueryClientProvider client={queryClientInstance}>

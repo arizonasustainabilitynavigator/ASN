@@ -15,12 +15,9 @@ const SEARCH_RADIUS_MILES = 25;
 const ZIP_PATTERN = /^\d{5}$/;
 const PAGE_SIZE = 27;
 
+// Resource directory page (businesses + curated resources, combined and paginated)
 export default function Resource() {
-  // Pre-fills the search box and category filter from the sustainability
-  // quiz results page, when arriving via its "Connect with Resources" link
-  // (e.g. /resource?zip=85001&category=Energy+%26+Solar). Read once on
-  // mount only, not kept in sync with the URL afterward - the search box
-  // and dropdown remain the source of truth after that.
+  // State (search/filter pre-filled from URL params, e.g. from the quiz results page)
   const [searchParams] = useSearchParams();
   const [businesses, setBusinesses] = useState([]);
   const [curatedResources, setCuratedResources] = useState([]);
@@ -42,16 +39,12 @@ export default function Resource() {
     loadBusinesses();
   }, []);
 
+  // Zip-radius search setup
   const normalizedSearch = search.trim().toLowerCase();
   const isZipSearch = ZIP_PATTERN.test(normalizedSearch);
   const nearbyZips = isZipSearch ? new Set(zipcodes.radius(normalizedSearch, SEARCH_RADIUS_MILES)) : null;
 
-  // Resolve nearby zips to city names (via the zipcodes package's full US
-  // database, not just our reference sheet) so curated resources — stored
-  // by city, not zip — can still be matched to a zip search, even for a
-  // zip that was never explicitly listed anywhere in our own data. Track
-  // each city's closest distance to the searched zip so results can be
-  // sorted nearest-first instead of alphabetically.
+  // Nearby zips resolved to city names + distance, for matching/sorting curated resources
   const cityDistances = isZipSearch
     ? [...nearbyZips].reduce((map, z) => {
         const info = zipcodes.lookup(z);
@@ -64,6 +57,7 @@ export default function Resource() {
     : null;
   const nearbyCities = isZipSearch ? new Set(cityDistances.keys()) : null;
 
+  // Business search/filter/sort
   const filteredBusinesses = businesses
     .filter((b) => {
       const businessZip = b.zip_code ? String(b.zip_code).trim() : "";
@@ -72,11 +66,6 @@ export default function Resource() {
         ? nearbyZips.has(businessZip)
         : businessZip.toLowerCase().includes(normalizedSearch);
       const matchesSearch = !normalizedSearch || matchesName || matchesZip;
-      // The "Resource Category" filter is curated-resource-native, but it
-      // also shows businesses whose own waste_types overlap with what that
-      // category actually relates to (e.g. "Recycling & Waste" -> businesses
-      // tagged Recycling or Waste). Categories with no real waste-type
-      // equivalent (Policy & Advocacy, etc.) correctly show no businesses.
       const selectedCuratedFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === curatedFilter);
       const matchesCuratedFilter =
         !curatedFilter ||
@@ -90,8 +79,7 @@ export default function Resource() {
       return distA - distB;
     });
 
-  // Businesses fill the front of the combined, 27-per-page sequence;
-  // curated resources fill whatever's left on each page after that.
+  // Pagination (businesses first, curated resources fill the rest of each page)
   const businessCount = filteredBusinesses.length;
   const pageStart = (page - 1) * PAGE_SIZE;
   const businessesOnPage = filteredBusinesses.slice(pageStart, pageStart + PAGE_SIZE);
@@ -115,6 +103,7 @@ export default function Resource() {
     setPageInput(String(page));
   }, [page]);
 
+  // Data loading
   const loadBusinesses = async () => {
     try {
       const data = await api.entities.BusinessProfile.list("-created_date", 50);
@@ -133,11 +122,7 @@ export default function Resource() {
       const selectedFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === curatedFilter);
 
       if (isZipSearch) {
-        // The database can't sort by "distance to a searched zip" (curated
-        // resources only have a city, not coordinates), so pull every
-        // matching row for the nearby cities, sort by real distance
-        // client-side, then slice out just this page. Capped well above any
-        // realistic match count for a single category within a 25mi radius.
+        // Zip search: fetch all matches for nearby cities, sort by real distance client-side
         const { data } = await api.entities.CuratedResource.list({
           cities: [...nearbyCities],
           categoryKeywords: selectedFilter?.keywords,
@@ -164,9 +149,7 @@ export default function Resource() {
         limit: Math.max(curatedNeeded, 0),
         offset: curatedOffset,
       });
-      // Ignore this response if a newer request has since been kicked off
-      // (e.g. businessCount just changed) — prevents a stale result from
-      // overwriting a more current one that resolves first.
+      // Ignore stale responses
       if (requestId !== curatedRequestId.current) return;
       setCuratedResources(curatedNeeded > 0 ? data : []);
       setCuratedTotal(count);
@@ -180,6 +163,7 @@ export default function Resource() {
   const totalCombined = businessCount + curatedTotal;
   const totalPages = Math.max(1, Math.ceil(totalCombined / PAGE_SIZE));
 
+  // Pagination handlers
   const goToPage = (n) => {
     const clamped = Math.min(Math.max(1, n), totalPages);
     setPage(clamped);
@@ -192,6 +176,7 @@ export default function Resource() {
     else setPageInput(String(page));
   };
 
+  // Render
   return (
     <div className="min-h-screen bg-background">
       <div className="copper-thread" />

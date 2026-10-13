@@ -7,7 +7,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { WASTE_TYPES } from "@/lib/constants";
 
+// Business profile editor page
 export default function Profile() {
+  // State
   const { toast } = useToast();
   const { user } = useAuth();
   const fileInputRef = useRef(null);
@@ -35,6 +37,7 @@ export default function Profile() {
     if (user) loadProfile();
   }, [user]);
 
+  // Load the signed-in user's existing business profile, if any
   const loadProfile = async () => {
     try {
       const profiles = await api.entities.BusinessProfile.filter({ user_id: user.id });
@@ -67,6 +70,7 @@ export default function Profile() {
     }
   };
 
+  // Handlers
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -120,6 +124,7 @@ export default function Profile() {
     }
   };
 
+  // Render: loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -128,6 +133,7 @@ export default function Profile() {
     );
   }
 
+  // Render: profile form
   return (
     <div className="min-h-screen bg-background">
       <div className="copper-thread" />

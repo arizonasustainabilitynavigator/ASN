@@ -2,6 +2,7 @@ import React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import moment from "moment";
 
+// Calendar with event-day markers, for filtering the events list by date
 export default function EventsCalendar({ events, selectedDate, onSelectDate }) {
   const eventDates = events.map((e) => moment(e.date).toDate());
 

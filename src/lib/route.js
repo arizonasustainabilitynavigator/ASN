@@ -6,10 +6,10 @@ import {
   COUNTRY_CODE_TO_NAME,
 } from "@/lib/countryCodes";
 
-// In-memory cache: { US: Set("10001", "10002", ...), CA: Set(...), ... }
-// Lives for the life of the server process / lambda instance.
+// Zip code set cache, per country
 const zipSetCache = {};
 
+// Load (and cache) the zip code set for a country
 function loadZipSet(countryCode) {
   if (zipSetCache[countryCode]) return zipSetCache[countryCode];
 
@@ -35,10 +35,12 @@ function loadZipSet(countryCode) {
   return set;
 }
 
+// Normalize a zip code for comparison
 function normalizeZip(zip) {
   return String(zip).trim().toUpperCase().replace(/\s+/g, "");
 }
 
+// API route: look up which countries a zip code belongs to
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const zip = searchParams.get("zip");

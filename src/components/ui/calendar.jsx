@@ -5,6 +5,7 @@ import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
+// Custom dropdown used inside the calendar's month/year selectors
 function CalendarDropdown({ value, onChange, options = [], className, disabled, ...props }) {
   const [open, setOpen] = React.useState(false)
   const containerRef = React.useRef(null)
@@ -106,6 +107,7 @@ function CalendarDropdown({ value, onChange, options = [], className, disabled, 
   )
 }
 
+// Calendar UI primitive (react-day-picker wrapper)
 function Calendar({
   className,
   classNames,

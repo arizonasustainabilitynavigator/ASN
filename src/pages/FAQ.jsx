@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FAQItem from "@/components/FAQItem";
 
+// FAQ content
 const faqs = [
   {
     question: "What types of waste can I find resources for?",
@@ -42,6 +43,7 @@ const faqs = [
   }
 ];
 
+// FAQ page
 export default function FAQ() {
   return (
     <div className="min-h-screen bg-background">

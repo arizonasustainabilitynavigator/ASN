@@ -5,6 +5,7 @@ import { X, Phone, Mail, Globe, MapPin } from "lucide-react";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { useToast } from "@/components/ui/use-toast";
 
+// Full-detail slide-over panel for a self-submitted business
 export default function ResourceDetailPanel({ business, onClose }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const navigate = useNavigate();

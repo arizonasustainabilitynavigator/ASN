@@ -8,7 +8,9 @@ import { api } from "@/api/client";
 import CuratedResourceCard from "@/components/CuratedResourceCard";
 import CuratedResourceDetailPanel from "@/components/CuratedResourceDetailPanel";
 
+// Quiz results screen (top-priority resource recommendations)
 export default function QuizResults({ answers, onRestart }) {
+  // State
   const { isAuthenticated } = useAuth();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,7 @@ export default function QuizResults({ answers, onRestart }) {
   const topFilterLabel = getTopPriorityFilterLabel(answers);
   const topFilter = CURATED_RESOURCE_FILTERS.find((f) => f.label === topFilterLabel);
 
+  // Load recommended resources for the top-priority filter
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -50,6 +53,7 @@ export default function QuizResults({ answers, onRestart }) {
   if (topFilterLabel) resourceLinkParams.set("category", topFilterLabel);
   const resourceLinkQuery = resourceLinkParams.toString();
 
+  // Render
   return (
     <div>
       <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">Your Results</p>

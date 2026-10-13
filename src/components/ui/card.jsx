@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Card UI primitive
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}

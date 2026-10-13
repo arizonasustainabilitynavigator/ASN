@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
+// Site footer
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({

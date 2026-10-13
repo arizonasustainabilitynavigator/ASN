@@ -6,6 +6,7 @@ import { api } from "@/api/client";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { useToast } from "@/components/ui/use-toast";
 
+// Full-detail slide-over panel for an event
 export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -17,6 +18,7 @@ export default function EventDetailPanel({ event, onClose, onDeleted, onEdit }) 
 
   const isOwner = !!user && user.id === event.created_by;
 
+  // Handlers
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${event.title}"? This can't be undone.`)) return;
     setDeleting(true);

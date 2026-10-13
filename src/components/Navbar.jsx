@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
+// Site navigation bar (desktop links + mobile slide-out menu)
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, logout } = useAuth();

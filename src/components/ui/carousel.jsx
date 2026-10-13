@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
+// Carousel UI primitive (embla-carousel wrapper)
 const CarouselContext = React.createContext(null)
 
 function useCarousel() {

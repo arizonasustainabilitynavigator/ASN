@@ -14,7 +14,9 @@ import { WASTE_TYPES } from "@/lib/constants";
 
 const PAGE_SIZE = 6;
 
+// Events calendar/listing page
 export default function Events() {
+  // State
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -33,6 +35,7 @@ export default function Events() {
     loadEvents();
   }, []);
 
+  // Data loading
   const loadEvents = async () => {
     try {
       const [userEvents, curatedEvents] = await Promise.all([
@@ -41,10 +44,7 @@ export default function Events() {
       ]);
       const merged = [
         ...userEvents,
-        // Curated events store the contact address as `email`, but the
-        // shared detail panel reads `contact_email` (the self-submitted
-        // events column name) - normalize it here so both event types
-        // render through the same panel without special-casing.
+        // Normalize curated events' `email` field to `contact_email`
         ...curatedEvents.map((e) => ({ ...e, contact_email: e.email, is_curated: true })),
       ].sort((a, b) => new Date(a.date) - new Date(b.date));
       setEvents(merged);
@@ -55,6 +55,7 @@ export default function Events() {
     }
   };
 
+  // Event handlers
   const handlePostEventClick = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -78,6 +79,7 @@ export default function Events() {
     setEditingEvent(event);
   };
 
+  // Filtering
   const hasActiveFilters = categoryFilter !== "all" || wasteTypeFilter !== "all" || onlyMine || !!selectedDate;
 
   const clearFilters = () => {
@@ -103,6 +105,7 @@ export default function Events() {
     setPageInput(String(page));
   }, [page]);
 
+  // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / PAGE_SIZE));
   const eventsOnPage = filteredEvents.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -117,6 +120,7 @@ export default function Events() {
     else setPageInput(String(page));
   };
 
+  // Category badge colors
   const categoryColors = {
     workshop: "bg-primary/10 text-primary",
     networking: "bg-accent/10 text-accent",
@@ -125,6 +129,7 @@ export default function Events() {
     webinar: "bg-primary/10 text-primary"
   };
 
+  // Render
   return (
     <div className="min-h-screen bg-background">
       <div className="copper-thread" />

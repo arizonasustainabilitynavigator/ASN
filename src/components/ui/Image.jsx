@@ -2,27 +2,16 @@ import * as React from "react"
 import { useSize } from "@/hooks/use-size"
 import { cn } from "@/lib/utils"
 
+// Constants
 const FALLBACK_IMAGE_URL =
   "https://static.wixstatic.com/media/12d367_4f26ccd17f8f4e3a8958306ea08c2332~mv2.png"
 
-// Supported image hosts for transform URLs
-// (resize, focal-point crop, and format conversion via the OUTPUT FILENAME
-// EXTENSION — a .webp output re-encodes JPG/PNG uploads to WebP on the fly).
 const WIX_MEDIA_HOSTS = ["static.wixstatic.com"]
-// First-paint width before the container is measured.
 const DEFAULT_TRANSFORM_WIDTH = 1024
 const DEVICE_PIXEL_RATIOS = [1, 2, 3]
-// Not a documented CDN limit — verified live that w_/h_ up to 10000 succeed
-// and requests start failing somewhere between 10000 and 15000. This is a
-// defensive ceiling with generous headroom (a 3x DPR request needs a
-// ~2000px container to reach it), not a real constraint we expect to hit.
 const MAX_DIMENSION = 6000
 
-/**
- * Detects a Wix Media URL and strips any existing /v1/ transform so it can be
- * rebuilt. Returns null for other hosts and for SVGs (vectors — a raster
- * transform only downgrades them).
- */
+// Wix Media transform URL helpers
 function parseWixMediaUrl(src) {
   try {
     const url = new URL(src)
@@ -40,11 +29,6 @@ function parseWixMediaUrl(src) {
 const clampDim = (n) => Math.min(Math.max(Math.round(n), 1), MAX_DIMENSION)
 const clamp01 = (n) => Math.min(1, Math.max(0, n))
 
-/**
- * Builds a Wix Media transform URL:
- * `<base>/v1/{fill|fit}/w_,h_[,fp_x_y|al_c],q_,usm_…/<name>.webp`
- * GIFs keep their extension (WebP output could drop animation).
- */
 function buildTransformUrl({ baseUrl, filename }, { width, height, crop, focalPoint, quality }) {
   const params = [`w_${clampDim(width)}`, `h_${clampDim(height || width)}`]
   if (crop) {
@@ -72,6 +56,7 @@ function buildSrcSet(parsed, options) {
   ).join(", ")
 }
 
+// Wrapper + responsive <img> rendering
 const ImageWrapper = React.forwardRef(({ aspectRatio, className, style, children }, ref) => (
   <span
     ref={ref}
@@ -119,13 +104,8 @@ const ResponsiveImage = React.forwardRef(
 )
 ResponsiveImage.displayName = "ResponsiveImage"
 
-/**
- * Image with built-in Wix Media Platform support: URLs on media.base44.com /
- * static.wixstatic.com are served resized to the rendered container (per
- * device pixel ratio) and re-encoded to WebP; `fittingType="fill"` crops
- * server-side, optionally anchored at a focal point. Other URLs render as a
- * plain <img>. Failed loads swap to a fallback image.
- */
+// Image component: Wix Media transforms when applicable, plain <img> otherwise,
+// with a fallback image on load error
 const Image = React.forwardRef(
   (
     {
@@ -152,15 +132,9 @@ const Image = React.forwardRef(
     }
 
     if (!src) {
-      // Renders as a real <img> (not a <div>) — the visual editor's
-      // click-to-edit toolbar keys its "Replace Image" action off the DOM
-      // tag being `img`, so a placeholder div would be unrecoverable in the
-      // editor. FALLBACK_IMAGE_URL doubles as the "no image chosen" graphic.
       return <img ref={ref} src={FALLBACK_IMAGE_URL} {...imageProps} data-empty-image />
     }
 
-    // The fallback renders as a plain <img> so a broken upload can't cascade
-    // into a second (transformed) failing request.
     const parsed = imgSrc === FALLBACK_IMAGE_URL ? null : parseWixMediaUrl(imgSrc)
 
     if (!parsed) {
@@ -174,8 +148,6 @@ const Image = React.forwardRef(
       typeof focalPointX === "number" && typeof focalPointY === "number"
         ? { x: focalPointX, y: focalPointY }
         : undefined
-    // Origin dimensions are optional — when known they stabilize layout via
-    // the wrapper's aspect-ratio before the image loads.
     const aspectRatio =
       originWidth && originHeight ? `${originWidth} / ${originHeight}` : undefined
 

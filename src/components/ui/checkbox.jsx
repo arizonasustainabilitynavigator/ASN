@@ -4,6 +4,7 @@ import { Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Checkbox UI primitive (Radix wrapper)
 const Checkbox = React.forwardRef(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}

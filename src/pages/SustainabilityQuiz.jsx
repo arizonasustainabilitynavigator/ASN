@@ -31,6 +31,7 @@ import {
 const TOTAL_STEPS = 10;
 const MAX_MULTI_SELECT = 3;
 
+// Default/empty answer state
 const INITIAL_ANSWERS = {
   orgZipCode: "",
   orgCounty: "",
@@ -53,7 +54,9 @@ const INITIAL_ANSWERS = {
   orgPlanFormat: [],
 };
 
+// Multi-step sustainability quiz page
 export default function SustainabilityQuiz() {
+  // State
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(INITIAL_ANSWERS);
   const { isAuthenticated, user } = useAuth();
@@ -61,10 +64,7 @@ export default function SustainabilityQuiz() {
 
   const update = (field, value) => setAnswers((prev) => ({ ...prev, [field]: value }));
 
-  // Saves the completed quiz once someone reaches the results screen: if
-  // they're already signed in, tie it to their account immediately;
-  // otherwise stash it for AuthContext to pick up and save once they sign
-  // in or create an account (see PENDING_QUIZ_KEY / onAuthStateChange).
+  // Save the completed quiz when the results screen is reached
   useEffect(() => {
     if (step !== TOTAL_STEPS || savedRef.current) return;
     savedRef.current = true;
@@ -76,8 +76,7 @@ export default function SustainabilityQuiz() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // Toggles a value in and out of an array field, capping the number of
-  // selections at `max` (used for the "select up to 3" questions).
+  // Toggles a value in/out of a multi-select field, capped at `max`
   const toggleMultiSelect = (field, value, max = MAX_MULTI_SELECT) => {
     setAnswers((prev) => {
       const current = prev[field];
@@ -85,7 +84,6 @@ export default function SustainabilityQuiz() {
       if (current.includes(value)) {
         next = current.filter((v) => v !== value);
       } else if (current.length >= max) {
-        // Already at the cap — ignore the click instead of adding more.
         return prev;
       } else {
         next = [...current, value];
@@ -94,6 +92,7 @@ export default function SustainabilityQuiz() {
     });
   };
 
+  // Per-step validation
   const canContinue = () => {
     if (step === 0) return !!answers.orgCounty;
 
@@ -138,6 +137,7 @@ export default function SustainabilityQuiz() {
     return true;
   };
 
+  // Step navigation handlers
   const handleContinue = () => {
     if (!canContinue()) return;
     setStep((prev) => prev + 1);
@@ -153,7 +153,7 @@ export default function SustainabilityQuiz() {
     savedRef.current = false;
   };
 
-  // Reusable button group for single-select questions.
+  // Reusable question renderers
   const renderSingleSelect = (options, field, getValue = (o) => o.value, getLabel = (o) => o.label) => (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => {
@@ -176,7 +176,6 @@ export default function SustainabilityQuiz() {
     </div>
   );
 
-  // Reusable button group for "select up to 3" questions.
   const renderMultiSelect = (options, field, max = MAX_MULTI_SELECT) => (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => {
@@ -203,6 +202,7 @@ export default function SustainabilityQuiz() {
     </div>
   );
 
+  // Render: question steps + results
   return (
     <div className="min-h-screen bg-background">
       <div className="copper-thread" />

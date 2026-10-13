@@ -1,5 +1,6 @@
 let zipRecords = null;
 
+// Load (and cache) the AZ zip/county dataset
 async function loadZipData() {
   if (zipRecords) return zipRecords;
 
@@ -22,6 +23,7 @@ async function loadZipData() {
   return zipRecords;
 }
 
+// Counties matching a given zip code
 export async function getCountiesForZip(zip) {
   const data = await loadZipData();
   const cleanZip = zip.trim();
@@ -30,7 +32,7 @@ export async function getCountiesForZip(zip) {
   return [...new Set(matches.map((row) => row.county))];
 }
 
-// Returns every unique county in the dataset, alphabetically sorted.
+// Every county in the dataset, alphabetically sorted
 export async function getAllCounties() {
   const data = await loadZipData();
   const unique = [...new Set(data.map((row) => row.county))];

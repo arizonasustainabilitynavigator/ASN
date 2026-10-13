@@ -2,6 +2,7 @@
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
+// Collapsible UI primitive (Radix wrapper)
 const Collapsible = CollapsiblePrimitive.Root
 
 const CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger

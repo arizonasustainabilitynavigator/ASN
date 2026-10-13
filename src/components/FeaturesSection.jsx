@@ -1,6 +1,7 @@
 import React from "react";
 import { Compass, BadgeCheck, BookOpen, CalendarDays } from "lucide-react";
 
+// Feature list content
 const features = [
 {
   icon: Compass,
@@ -24,6 +25,7 @@ const features = [
 }];
 
 
+// Homepage "how it works" features section
 export default function FeaturesSection() {
   return (
     <section className="py-24 md:py-40">

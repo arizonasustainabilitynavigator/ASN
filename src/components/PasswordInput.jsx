@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+// Password field with a show/hide toggle
 export default function PasswordInput({
   id,
   value,

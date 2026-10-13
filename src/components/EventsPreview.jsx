@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+// Sample event content for the homepage preview
 const previewEvents = [
 {
   date: "Jul 15",
@@ -23,6 +24,7 @@ const previewEvents = [
 }];
 
 
+// Homepage events preview section
 export default function EventsPreview() {
   return (
     <section className="py-24 md:py-40 relative">

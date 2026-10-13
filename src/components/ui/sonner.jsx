@@ -2,6 +2,7 @@
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
+// Toast notification UI primitive (sonner wrapper)
 const Toaster = ({
   ...props
 }) => {

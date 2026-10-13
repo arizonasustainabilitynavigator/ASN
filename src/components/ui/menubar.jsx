@@ -6,6 +6,7 @@ import { Check, ChevronRight, Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Menubar UI primitive (Radix wrapper)
 function MenubarMenu({
   ...props
 }) {

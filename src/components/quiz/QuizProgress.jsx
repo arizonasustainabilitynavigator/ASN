@@ -1,5 +1,6 @@
 import React from "react";
 
+// Quiz step progress bar
 export default function QuizProgress({ step, total }) {
   return (
     <div className="flex items-center gap-2 mb-10">

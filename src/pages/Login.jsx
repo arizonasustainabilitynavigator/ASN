@@ -11,7 +11,9 @@ import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/lib/AuthContext";
 import { getErrorMessage } from "@/lib/utils";
 
+// Sign-in page
 export default function Login() {
+  // State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,6 +21,7 @@ export default function Login() {
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
+  // Handlers
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -45,6 +48,7 @@ export default function Login() {
     }
   };
 
+  // Render
   return (
     <AuthLayout
       icon={LogIn}

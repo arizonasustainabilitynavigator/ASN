@@ -4,18 +4,16 @@ import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
 import { existsSync } from "node:fs";
 
-// A `public/CNAME` file means GitHub Pages is serving this from a custom
-// domain at the root (/) — without one, GitHub Actions builds serve from
-// the project subpath (/ASN/) instead. Hardcoding one or the other breaks
-// asset paths (blank white screen) the moment the deploy target changes,
-// so this detects it instead of needing a manual flip at cutover time.
+// Deploy base path: "/" for a custom domain, "/ASN/" for GitHub Pages project builds
 const hasCustomDomain = existsSync(fileURLToPath(new URL("./public/CNAME", import.meta.url)));
 
+// Vite config
 export default defineConfig({
   root: ".",
   base: hasCustomDomain ? "/" : (process.env.GITHUB_ACTIONS ? "/ASN/" : "/"),
   plugins: [react(), tailwindcss()],
 
+  // Dev server
   server: {
     host: "127.0.0.1",
     port: 5173,
@@ -28,6 +26,7 @@ export default defineConfig({
     },
   },
 
+  // Import alias
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

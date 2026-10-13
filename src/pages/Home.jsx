@@ -7,6 +7,7 @@ import CTASection from "@/components/CTASection";
 import PartnerLogos from "@/components/PartnerLogos";
 import Footer from "@/components/Footer";
 
+// Home page
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
