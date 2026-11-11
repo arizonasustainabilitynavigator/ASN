@@ -102,6 +102,12 @@ You only need this next one if the app guesses the wrong redirect URL for your s
 VITE_SUPABASE_REDIRECT_URL=https://your-deployed-url/
 ```
 
+Optional: set this to send traffic to Google Analytics 4 (page views, resource clicks, and searches). Create a GA4 property and grab the Measurement ID from **Admin → Data Streams**. Leave it unset to keep analytics off, which is the default for local dev.
+
+```
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
 ### 7. Run it
 
 ```bash
@@ -114,7 +120,7 @@ Then just open `http://localhost:5173`.
 
 Every push to `main` kicks off [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds the app and publishes it to GitHub Pages automatically. To set that up on your own fork:
 
-1. In your repo's **Settings → Secrets and variables → Actions**, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+1. In your repo's **Settings → Secrets and variables → Actions**, add `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and (optional) `VITE_GA_MEASUREMENT_ID`.
 2. In **Settings → Pages**, set the source to **GitHub Actions**.
 3. Push to `main`, and it'll build and deploy on its own from there.
 

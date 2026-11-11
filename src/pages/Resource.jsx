@@ -10,6 +10,7 @@ import ResourceDetailPanel from "@/components/ResourceDetailPanel";
 import CuratedResourceCard from "@/components/CuratedResourceCard";
 import CuratedResourceDetailPanel from "@/components/CuratedResourceDetailPanel";
 import { CURATED_RESOURCE_FILTERS } from "@/lib/constants";
+import { trackSearch, trackResourceClick } from "@/lib/analytics";
 
 const SEARCH_RADIUS_MILES = 25;
 const ZIP_PATTERN = /^\d{5}$/;
@@ -89,6 +90,12 @@ export default function Resource() {
   useEffect(() => {
     setPage(1);
   }, [search, curatedFilter]);
+
+  useEffect(() => {
+    if (!search.trim()) return;
+    const timeout = setTimeout(() => trackSearch(search.trim()), 600);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   useEffect(() => {
     if (loading) return; // wait for businessCount to be known before paginating
@@ -251,10 +258,24 @@ export default function Resource() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             {businessesOnPage.map((b) => (
-              <ResourceCard key={b.id} business={b} onClick={() => setSelectedBusiness(b)} />
+              <ResourceCard
+                key={b.id}
+                business={b}
+                onClick={() => {
+                  trackResourceClick("business");
+                  setSelectedBusiness(b);
+                }}
+              />
             ))}
             {curatedResources.map((r) => (
-              <CuratedResourceCard key={r.id} resource={r} onClick={() => setSelectedCuratedResource(r)} />
+              <CuratedResourceCard
+                key={r.id}
+                resource={r}
+                onClick={() => {
+                  trackResourceClick("curated_resource");
+                  setSelectedCuratedResource(r);
+                }}
+              />
             ))}
           </div>
         )}
