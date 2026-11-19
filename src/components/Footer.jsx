@@ -131,21 +131,47 @@ export default function Footer() {
 
         <div className="h-[0.5px] bg-background/10 mt-16 mb-8" />
 
-        <div className="flex items-center justify-between">
-          <p className="text-background/60 text-xs">
+        <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+          <p className="text-background/60 text-xs text-center md:text-left">
             © {new Date().getFullYear()} Arizona Sustainability Navigator. All
             rights reserved.
           </p>
 
-          <button
-            type="button"
-            onClick={scrollToTop}
-            className="group flex flex-col items-center gap-1 text-primary hover:text-background transition-colors"
-            aria-label="Back to top"
-          >
-            <ArrowUp size={16} />
-            <div className="w-[2px] h-8 bg-primary group-hover:bg-background transition-colors" />
-          </button>
+          <div className="flex items-center gap-6">
+            <nav
+              className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+              aria-label="Policy pages"
+            >
+              <Link
+                to="/privacy"
+                className="text-background/60 text-xs underline underline-offset-4 hover:text-primary transition-colors"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms"
+                className="text-background/60 text-xs underline underline-offset-4 hover:text-primary transition-colors"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/accessibility"
+                className="text-background/60 text-xs underline underline-offset-4 hover:text-primary transition-colors"
+              >
+                Accessibility
+              </Link>
+            </nav>
+
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="group flex flex-col items-center gap-1 text-primary hover:text-background transition-colors"
+              aria-label="Back to top"
+            >
+              <ArrowUp size={16} />
+              <div className="w-[2px] h-8 bg-primary group-hover:bg-background transition-colors" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>

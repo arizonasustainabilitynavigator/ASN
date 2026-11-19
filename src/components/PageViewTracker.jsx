@@ -17,6 +17,9 @@ const PAGE_TITLES = {
   "/events": "Events",
   "/resource": "Resources",
   "/profile": "Profile",
+  "/privacy": "Privacy Policy",
+  "/terms": "Terms of Service",
+  "/accessibility": "Accessibility Statement",
 };
 
 function getPageTitle(pathname) {
